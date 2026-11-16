@@ -1,3 +1,15 @@
+---
+title: Electro Authorization System
+description: Hurtigguider og brukerdokumentasjon for Electro Authorization System.
+language: Norsk
+status: Published
+order: 10
+---
+
+# Hurtigguider
+
+Resten av brukerguiden fortsetter her.
+
 # Hurtigguider – Elektro-sikkerhetskort
 
 Guidene beskriver funksjoner som finnes i dagens app. Menynavn vises på norsk
