@@ -29,33 +29,62 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Create output structure
+      - name: Create output directory
         run: |
-          mkdir -p _site/apps/electroauthorizationsystem
+          mkdir -p _site
           mkdir -p _site/styles
 
-      - name: Copy styles
+      - name: Copy shared styles
         run: |
           cp -r styles/. _site/styles/
 
-      - name: Copy images
+      - name: Prepare application files
         run: |
-          cp -r \
-            apps/electroauthorizationsystem/images \
-            _site/apps/electroauthorizationsystem/images
+          for app_dir in apps/*; do
+            if [ ! -d "$app_dir" ]; then
+              continue
+            fi
 
-      - name: Convert Markdown to HTML
-        uses: docker://pandoc/core:3.8
-        with:
-          args: >-
-            --from=gfm
-            --to=html5
-            --standalone
-            --metadata
-            title="Electro Authorization System"
-            --css=../../styles/userguide.css
-            --output=_site/apps/electroauthorizationsystem/index.html
-            apps/electroauthorizationsystem/index.md
+            app_name=$(basename "$app_dir")
+
+            if [ ! -f "$app_dir/index.md" ]; then
+              echo "Skipping $app_name: no index.md found"
+              continue
+            fi
+
+            echo "Preparing $app_name"
+
+            mkdir -p "_site/apps/$app_name"
+
+            cp -r "$app_dir"/. "_site/apps/$app_name/"
+
+            rm "_site/apps/$app_name/index.md"
+          done
+
+      - name: Convert Markdown guides to HTML
+        run: |
+          docker run --rm \
+            -v "$PWD:/data" \
+            -w /data \
+            pandoc/core:3.8 \
+            sh -c '
+              for input in apps/*/index.md; do
+                [ -f "$input" ] || continue
+
+                app_dir=$(dirname "$input")
+                app_name=$(basename "$app_dir")
+
+                echo "Building $app_name"
+
+                pandoc \
+                  --from=gfm \
+                  --to=html5 \
+                  --standalone \
+                  --css=../../styles/userguide.css \
+                  --output="_site/apps/$app_name/index.html" \
+                  "$input"
+              done
+            '
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
@@ -68,7 +97,6 @@ jobs:
   deploy:
     name: Deploy GitHub Pages
     needs: build
-
     runs-on: ubuntu-latest
 
     environment:
