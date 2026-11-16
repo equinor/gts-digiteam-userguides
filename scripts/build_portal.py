@@ -32,8 +32,8 @@ def read_frontmatter(markdown_file: Path) -> dict[str, str]:
     Example:
 
     ---
-    title_nb: Elektroautorisasjonssystem
-    title_en: Electro Authorization System
+    title_nb: Norsk apptittel
+    title_en: English apptitle
     description_nb: Norsk beskrivelse
     description_en: English description
     languages: nb,en
@@ -1034,271 +1034,86 @@ def build_page(
 
 
   <script>
-
     (() => {{
-
       "use strict";
 
+      const translations = {translations};
 
-      const translations =
-        {translations};
+      const buttons = document.querySelectorAll(
+        ".language-button"
+      );
 
+      function setLanguage(language) {{
+        const text = translations[language];
 
-      const root =
-        document.documentElement;
+        if (!text) {{
+          return;
+        }}
 
+        document.documentElement.lang = language;
 
-      const description =
-        document.getElementById(
-          "page-description"
-        );
-
-
-      const languageButtons =
         document.querySelectorAll(
-          "[data-language]"
-        );
+          "[data-i18n]"
+        ).forEach((element) => {{
+          const key = element.dataset.i18n;
 
-
-      const languageButtonGroup =
-        document.getElementById(
-          "language-buttons"
-        );
-
-
-      const mainNavigation =
-        document.getElementById(
-          "main-navigation"
-        );
-
-
-      function getSavedLanguage() {{
-
-        try {{
-
-          const savedLanguage =
-            localStorage.getItem(
-              "gts-userguide-language"
-            );
-
-
-          if (
-            savedLanguage === "nb" ||
-            savedLanguage === "en"
-          ) {{
-
-            return savedLanguage;
-
+          if (Object.prototype.hasOwnProperty.call(text, key)) {{
+            element.textContent = text[key];
           }}
+        }});
 
-        }} catch (error) {{
+        document.querySelectorAll(
+          "[data-nb][data-en]"
+        ).forEach((element) => {{
+          if (language === "en") {{
+            element.textContent = element.dataset.en;
+          }} else {{
+            element.textContent = element.dataset.nb;
+          }}
+        }});
 
-          console.info(
-            "Language preference could not be read.",
-            error
-          );
-
-        }}
-
-
-        return "nb";
-
-      }}
-
-
-      function saveLanguage(
-        language
-      ) {{
-
-        try {{
-
-          localStorage.setItem(
-            "gts-userguide-language",
-            language
-          );
-
-        }} catch (error) {{
-
-          console.info(
-            "Language preference could not be saved.",
-            error
-          );
-
-        }}
-
-      }}
-
-
-      function setLanguage(
-        language
-      ) {{
-
-        if (!translations[language]) {{
-          language = "nb";
-        }}
-
-
-        const text =
-          translations[language];
-
-
-        root.lang = language;
-
-
-        document.title =
-          text.pageTitle;
-
-
-        if (description) {{
-
-          description.setAttribute(
-            "content",
-            text.pageDescription
-          );
-
-        }}
-
-
-        document
-          .querySelectorAll(
-            "[data-i18n]"
-          )
-          .forEach((element) => {{
-
-            const key =
-              element.dataset.i18n;
-
-
-            if (text[key]) {{
-
-              element.textContent =
-                text[key];
-
-            }}
-
-          }});
-
-
-        document
-          .querySelectorAll(
-            "[data-nb][data-en]"
-          )
-          .forEach((element) => {{
-
-            element.textContent =
-              language === "nb"
-                ? element.dataset.nb
-                : element.dataset.en;
-
-          }});
-
-
-        document
-          .querySelectorAll(
-            "[data-aria-label-nb]" +
-            "[data-aria-label-en]"
-          )
-          .forEach((element) => {{
-
-            const label =
-              language === "nb"
-                ? element.dataset.ariaLabelNb
-                : element.dataset.ariaLabelEn;
-
-
+        document.querySelectorAll(
+          "[data-aria-label-nb][data-aria-label-en]"
+        ).forEach((element) => {{
+          if (language === "en") {{
             element.setAttribute(
               "aria-label",
-              label
+              element.dataset.ariaLabelEn
             );
-
-          }});
-
-
-        languageButtons.forEach(
-          (button) => {{
-
-            const isActive =
-              button.dataset.language ===
-              language;
-
-
-            button.classList.toggle(
-              "is-active",
-              isActive
-            );
-
-
-            button.ria-pressed",
-              String(isActive)
-            );
-
-          }}
-        );
-
-
-        if (languageButtonGroup) {{
-
-          languageButtonGroup.setAttribute(
-            "aria-label",
-            text.languageSelectorLabel
-          );
-
-        }}
-
-
-        if (mainNavigation) {{
-
-          mainNavigation.setAttribute(
-            "aria-label",
-            text.mainNavigation
-          );
-
-        }}
-
-
-        document
-          .querySelectorAll(
-            ".app-card__languages"
-          )
-          .forEach((element) => {{
-
+          }} else {{
             element.setAttribute(
               "aria-label",
-              text.availableLanguages
+              element.dataset.ariaLabelNb
             );
+          }}
+        }});
 
-          }});
+        buttons.forEach((button) => {{
+          const active =
+            button.dataset.language === language;
 
-
-        saveLanguage(language);
-
-      }}
-
-
-      languageButtons.forEach(
-        (button) => {{
-
-          button.addEventListener(
-            "click",
-            () => {{
-
-              setLanguage(
-                button.dataset.language
-              );
-
-            }}
+          button.classList.toggle(
+            "is-active",
+            active
           );
 
-        }}
-      );
+          button.setAttribute(
+            "aria-pressed",
+            active ? "true" : "false"
+          );
+        }});
 
+        document.title = text.pageTitle;
+      }}
 
-      setLanguage(
-        getSavedLanguage()
-      );
+      buttons.forEach((button) => {{
+        button.addEventListener("click", () => {{
+          setLanguage(button.dataset.language);
+        }});
+      }});
 
+      setLanguage("nb");
     }})();
-
   </script>
 
 </body>
