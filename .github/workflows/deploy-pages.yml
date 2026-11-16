@@ -85,6 +85,9 @@ jobs:
                   "$input"
               done
             '
+      - name: Generate portal front page
+        run: |
+          python3 scripts/build_portal.py
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
