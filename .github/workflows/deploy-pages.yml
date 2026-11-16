@@ -63,28 +63,34 @@ jobs:
 
       - name: Convert Markdown guides to HTML
         run: |
-          docker run --rm \
-            -v "$PWD:/data" \
-            -w /data \
-            pandoc/core:3.8 \
-            sh -c '
-              for input in apps/*/index.md; do
-                [ -f "$input" ] || continue
+          while IFS= read -r input; do
+            app_dir=$(dirname "$input")
+            app_name=$(basename "$app_dir")
 
-                app_dir=$(dirname "$input")
-                app_name=$(basename "$app_dir")
+            echo "Building: $app_name"
 
-                echo "Building $app_name"
+            docker run --rm \
+              --volume "$PWD:/data" \
+              --workdir /data \
+              pandoc/core:3.8 \
+              --from=gfm \
+              --to=html5 \
+              --standalone \
+              --section-divs \
+              --toc \
+              --toc-depth=3 \
+              --metadata \
+              "title=$app_name" \
+              --css=../../styles/userguide.css \
+              --output="_site/apps/$app_name/index.html" \
+              "$input"
+          done < <(find apps \
+            -mindepth 2 \
+            -maxdepth 2 \
+            -type f \
+            -name index.md \
+            -print)
 
-                pandoc \
-                  --from=gfm \
-                  --to=html5 \
-                  --standalone \
-                  --css=../../styles/userguide.css \
-                  --output="_site/apps/$app_name/index.html" \
-                  "$input"
-              done
-            '
       - name: Generate portal front page
         run: |
           python3 scripts/build_portal.py
