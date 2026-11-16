@@ -1,3 +1,9 @@
+# Looking for the userguides?
+
+Go to https://equinor.github.io/gts-digiteam-userguides
+
+---
+
 # Publishing user guides to the GTS DigiTeam User Guide Portal
 
 This guide describes how application developers publish documentation to the GTS DigiTeam User Guide Portal.
