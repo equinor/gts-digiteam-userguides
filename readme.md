@@ -416,13 +416,265 @@ apps/*/index.md
 
 # Publishing from the application repository
 
-## 11. Create a GitHub Actions workflow
+Before creating the publishing workflow, the application repository must be given a credential that allows GitHub Actions to write documentation to:
 
-Create the following file in the application repository:
+```text
+equinor/gts-digiteam-userguides
+```
+
+The setup consists of two parts:
+
+1. Create a token with access to the User Guides repository.
+2. Store the token as a GitHub Actions secret in the application repository.
+3. Create the publishing workflow that uses the secret.
+
+---
+
+## 1. Create a token for the User Guides repository
+
+Create a fine-grained Personal Access Token (PAT) in GitHub.
+
+Go to:
+
+```text
+GitHub
+→ Settings
+→ Developer settings
+→ Personal access tokens
+→ Fine-grained tokens
+→ Generate new token
+```
+
+Configure the token so that it only has access to the User Guides repository.
+
+### Resource owner
+
+Select:
+
+```text
+equinor
+```
+
+as the resource owner.
+
+This is important. If your personal account is selected as the resource owner, the token will not be able to select repositories owned by the Equinor organization.
+
+### Repository access
+
+Select:
+
+```text
+Only selected repositories
+```
+
+and select:
+
+```text
+equinor/gts-digiteam-userguides
+```
+
+The token should not be given access to additional repositories unless required for another purpose.
+
+Fine-grained PATs allow repository access and permissions to be restricted to the resources required by the integration. 【1-507a77】【2-7754f8】
+
+### Repository permissions
+
+Under Repository permissions, configure:
+
+```text
+Contents: Read and write
+```
+
+The publishing workflow needs write access because it creates or updates files and pushes a commit to the User Guides repository.
+
+Avoid granting unnecessary permissions.
+
+### Organization approval
+
+The Equinor GitHub organization may require approval of fine-grained Personal Access Tokens.
+
+If approval is required, the token cannot access organization resources until an organization owner has approved the request. GitHub documents this approval flow for organizations that require approval of fine-grained PATs. 【3-2afd9c】
+
+Do not continue with publication until the token has the required access.
+
+---
+
+## 2. Add the token to the application repository
+
+Copy the token when GitHub displays it.
+
+Do not add the token to source code, Markdown or the workflow YAML.
+
+Instead, open the application repository and go to:
+
+```text
+Settings
+→ Secrets and variables
+→ Actions
+→ New repository secret
+```
+
+Create a secret named:
+
+```text
+USERGUIDES_REPO_TOKEN
+```
+
+Paste the token as the secret value.
+
+The application repository should now contain the Actions secret:
+
+```text
+USERGUIDES_REPO_TOKEN
+```
+
+The workflow will reference the secret as:
+
+```yaml
+${{ secrets.USERGUIDES_REPO_TOKEN }}
+```
+
+> [!IMPORTANT]
+> Never commit the actual token to Git.
+
+Correct:
+
+```yaml
+token: ${{ secrets.USERGUIDES_REPO_TOKEN }}
+```
+
+Incorrect:
+
+```yaml
+token: github_pat_xxxxxxxxxxxxxxxxx
+```
+
+---
+
+## 3. Prepare the documentation
+
+The application team may keep the documentation structure that makes sense for the application.
+
+A recommended structure is:
+
+```text
+docs/
+├── userguide.md
+└── images/
+    └── userguide/
+        ├── overview.png
+        ├── create.png
+        └── edit.png
+```
+
+An existing application might instead use:
+
+```text
+docs/
+├── hurtigguider.md
+└── images/
+    └── hurtigguider/
+        ├── opprett.png
+        └── rediger.png
+```
+
+Both are valid.
+
+The publishing workflow is responsible for mapping the application's structure to the standard structure used by the User Guide Portal.
+
+---
+
+## 4. Add portal metadata to the Markdown file
+
+The Markdown file must start with the portal metadata.
+
+Example:
+
+```yaml
+---
+title_nb: Elektroautorisasjonssystem
+title_en: Electro Authorization System
+description_nb: Hurtigguider og brukerdokumentasjon for Elektroautorisasjonssystem.
+description_en: Quick guides and user documentation for Electro Authorization System.
+languages: nb,en
+status: Published
+order: 10
+initials: EA
+---
+```
+
+The portal uses these values to generate navigation and application cards.
+
+The application ID is separate from the translated application names.
+
+For example:
+
+```text
+Application ID:
+electroauthorizationsystem
+
+Norwegian name:
+Elektroautorisasjonssystem
+
+English name:
+Electro Authorization System
+```
+
+This allows the displayed names to change without changing the application's URL.
+
+---
+
+## 5. Required published structure
+
+Regardless of the structure in the application repository, the workflow must publish the documentation as:
+
+```text
+apps/
+└── <application-id>/
+    ├── index.md
+    └── images/
+        └── ...
+```
+
+For Electro Authorization System:
+
+```text
+apps/
+└── electroauthorizationsystem/
+    ├── index.md
+    └── images/
+        └── hurtigguider/
+            ├── opprett.png
+            └── rediger.png
+```
+
+The source Markdown file does not need to be named `index.md`.
+
+For example:
+
+```text
+docs/hurtigguider.md
+```
+
+is published as:
+
+```text
+apps/electroauthorizationsystem/index.md
+```
+
+`index.md` is the contract between the application repository and the User Guide Portal.
+
+---
+
+## 6. Create the GitHub Actions workflow
+
+Create:
 
 ```text
 .github/workflows/publish-userguide.yml
 ```
+
+in the application repository.
 
 Example:
 
@@ -434,8 +686,8 @@ on:
     branches:
       - main
     paths:
-      - "docs/userguide.md"
-      - "docs/images/userguide/**"
+      - "docs/hurtigguider.md"
+      - "docs/images/hurtigguider/**"
 
   workflow_dispatch:
 
@@ -457,28 +709,40 @@ jobs:
 
       - name: Prepare user guide
         run: |
-          rm -rf userguides/apps/my-application
+          APP_ID="electroauthorizationsystem"
+          SOURCE_MD="docs/hurtigguider.md"
+          SOURCE_IMAGES="docs/images/hurtigguider"
+
+          TARGET_DIR="userguides/apps/$APP_ID"
+
+          rm -rf "$TARGET_DIR"
 
           mkdir -p \
-            userguides/apps/my-application/images/userguide
+            "$TARGET_DIR/images/hurtigguider"
 
           cp \
-            docs/userguide.md \
-            userguides/apps/my-application/index.md
+            "$SOURCE_MD" \
+            "$TARGET_DIR/index.md"
 
           cp -r \
-            docs/images/userguide/. \
-            userguides/apps/my-application/images/userguide/
+            "$SOURCE_IMAGES/." \
+            "$TARGET_DIR/images/hurtigguider/"
 
       - name: Commit and publish
         working-directory: userguides
         run: |
-          git config user.name "github-actions[bot]"
+          APP_ID="electroauthorizationsystem"
 
-          git config user.email \
+          git config \
+            user.name \
+            "github-actions[bot]"
+
+          git config \
+            user.email \
             "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git add apps/my-application
+          git add \
+            "apps/$APP_ID"
 
           if git diff --cached --quiet; then
             echo "No user guide changes to publish."
@@ -486,281 +750,181 @@ jobs:
           fi
 
           git commit \
-            -m "Update my-application user guide"
+            -m "Update $APP_ID user guide"
 
           git push
 ```
 
-Replace:
+The important authentication step is:
 
-```text
-my-application
+```yaml
+token: ${{ secrets.USERGUIDES_REPO_TOKEN }}
 ```
 
-with the application's technical application ID.
+This is the token stored in the application repository in step 2.
 
-Also adjust:
-
-```text
-docs/userguide.md
-docs/images/userguide/
-```
-
-if the application repository uses different paths.
+Without this credential, the workflow does not have permission to push documentation to the User Guides repository.
 
 ---
 
-# Authentication
+## 7. Adapt the workflow to your application
 
-## 12. Configure access to the User Guides repository
+For another application, change:
 
-The publishing workflow needs permission to write to:
+```bash
+APP_ID="electroauthorizationsystem"
+SOURCE_MD="docs/hurtigguider.md"
+SOURCE_IMAGES="docs/images/hurtigguider"
+```
+
+For example:
+
+```bash
+APP_ID="liftingequipment"
+SOURCE_MD="docs/userguide.md"
+SOURCE_IMAGES="docs/images/userguide"
+```
+
+Also update the workflow trigger:
+
+```yaml
+paths:
+  - "docs/userguide.md"
+  - "docs/images/userguide/**"
+```
+
+The destination contract remains:
+
+```text
+apps/<application-id>/index.md
+```
+
+---
+
+## 8. Test access before relying on automatic publishing
+
+The workflow contains:
+
+```yaml
+workflow_dispatch:
+```
+
+This allows it to be run manually.
+
+After committing the workflow:
+
+1. Open the application repository.
+2. Select Actions.
+3. Select Publish user guide.
+4. Select Run workflow.
+5. Run it against `main`.
+
+The first important step to verify is:
+
+```text
+Checkout User Guides repository
+```
+
+If this succeeds, the workflow was able to authenticate against:
 
 ```text
 equinor/gts-digiteam-userguides
 ```
 
-The example workflow expects a GitHub Actions secret named:
+Then verify that:
+
+```text
+Commit and publish
+```
+
+also succeeds.
+
+A successful run should create or update:
+
+```text
+apps/<application-id>/
+```
+
+in the User Guides repository.
+
+---
+
+## Troubleshooting authentication
+
+### Repository not found
+
+If the workflow reports that:
+
+```text
+equinor/gts-digiteam-userguides
+```
+
+cannot be found, verify:
+
+- the token uses `equinor` as its resource owner
+- the token has access to `gts-digiteam-userguides`
+- the token has not expired
+- any required organization approval has been completed
+
+Fine-grained PATs can be restricted to specific repositories, and organizations can require approval before such tokens can access organization resources. 【2-7754f8】【3-2afd9c】
+
+### Write access not granted
+
+If checkout succeeds but:
+
+```text
+git push
+```
+
+fails with a write-access error, verify that the token has:
+
+```text
+Repository permissions
+→ Contents
+→ Read and write
+```
+
+### Secret not found
+
+Verify that the application repository contains a repository secret named exactly:
 
 ```text
 USERGUIDES_REPO_TOKEN
 ```
 
-The credential should only have the permissions required to publish documentation to the User Guides repository.
-
-Never place a token directly in:
-
-```text
-publish-userguide.yml
-```
-
-Never place credentials or secrets in the Markdown documentation.
-
-Use GitHub Actions secrets or the authentication mechanism approved for the organization.
-
----
-
-# What happens after publishing?
-
-When the application workflow pushes content to the User Guides repository, the portal's deployment workflow runs automatically.
-
-The process is:
-
-```text
-apps/<application-id>/index.md
-        │
-        ▼
-      Pandoc
-        │
-        ▼
-      HTML
-        │
-        ├── User guide
-        └── Portal metadata
-        │
-        ▼
-Portal generation
-        │
-        ▼
-GitHub Pages
-```
-
-The portal automatically discovers applications under:
-
-```text
-apps/
-```
-
-and uses the metadata from each `index.md` to generate:
-
-- application cards
-- Norwegian application names
-- English application names
-- descriptions
-- language information
-- navigation
-- ordering
-
-Application teams do not need to modify the portal itself.
-
----
-
-# Updating documentation
-
-## 13. Publish documentation changes through the application repository
-
-Update the Markdown or images in the application repository as part of the normal development process.
-
-For example:
-
-```text
-docs/userguide.md
-```
-
-or:
-
-```text
-docs/images/userguide/**
-```
-
-After the changes reach `main`, the publication workflow runs automatically.
-
-The application team does not need to deploy GitHub Pages directly.
-
----
-
-## 14. Removing obsolete content
-
-The recommended workflow replaces the application's complete published directory before copying the current documentation:
-
-```bash
-rm -rf userguides/apps/my-application
-```
-
-This is intentional.
-
-If an obsolete screenshot is removed from the application repository, it will therefore also disappear from the public documentation during the next publication.
-
-The workflow must only remove its own application directory.
-
-Correct:
-
-```bash
-rm -rf userguides/apps/electroauthorizationsystem
-```
-
-Do not use:
-
-```bash
-rm -rf userguides/apps
-```
-
-The latter would remove documentation belonging to every application.
-
----
-
-# Example: Electro Authorization System
-
-Source repository:
-
-```text
-equinor/electroauthorizationsystem
-```
-
-Source documentation:
-
-```text
-docs/
-├── hurtigguider.md
-└── images/
-    └── hurtigguider/
-```
-
-Application ID:
-
-```text
-electroauthorizationsystem
-```
-
-Metadata:
+and that the workflow references exactly:
 
 ```yaml
----
-title_nb: Elektroautorisasjonssystem
-title_en: Electro Authorization System
-description_nb: Hurtigguider og brukerdokumentasjon for Elektroautorisasjonssystem.
-description_en: Quick guides and user documentation for Electro Authorization System.
-languages: nb,en
-status: Published
-order: 10
-initials: EA
----
+${{ secrets.USERGUIDES_REPO_TOKEN }}
 ```
 
-Publishing mapping:
+Secret names are case-sensitive.
+
+---
+
+## Security
+
+The token is a credential.
+
+Do not:
+
+- include it in Markdown
+- print it in workflow logs
+- commit it to the repository
+- put it directly in workflow YAML
+- share it in issues or pull requests
+
+Store it only as a GitHub Actions secret.
+
+The token should be limited to:
 
 ```text
-docs/hurtigguider.md
-        ↓
-apps/electroauthorizationsystem/index.md
+equinor/gts-digiteam-userguides
 ```
 
-Images:
+with only the permissions required for publishing.
 
-```text
-docs/images/hurtigguider/
-        ↓
-apps/electroauthorizationsystem/images/hurtigguider/
-```
-
-This application can be used as a reference implementation when onboarding another application.
-
----
-
-# Before publishing
-
-Verify the following:
-
-- [ ] `title_nb` contains the correct Norwegian application name.
-- [ ] `title_en` contains the correct English application name.
-- [ ] `description_nb` contains the correct Norwegian description.
-- [ ] `description_en` contains the correct English description.
-- [ ] `languages` reflects the documentation actually available.
-- [ ] `status` is set to `Published`.
-- [ ] The application ID is correct and stable.
-- [ ] Markdown headings have a logical hierarchy.
-- [ ] Images use relative paths.
-- [ ] All referenced images exist.
-- [ ] Images have meaningful alternative text.
-- [ ] Links work.
-- [ ] Norwegian characters such as `æ`, `ø` and `å` are displayed correctly.
-- [ ] No secrets or credentials are present.
-- [ ] Screenshots have been reviewed for sensitive information.
-
----
-
-# Security and public content
-
-> [!CAUTION]
-> The GTS DigiTeam User Guide Portal is publicly accessible.
-
-Everything published through this mechanism must be suitable for public distribution.
-
-Do not publish:
-
-- passwords
-- Personal Access Tokens
-- API keys
-- client secrets
-- connection strings
-- authentication cookies
-- credentials
-- confidential information
-- personal information
-- production data
-- sensitive source code
-- sensitive system architecture
-- information that exposes security controls
-
-Pay particular attention to screenshots.
-
-Before publishing a screenshot, check for:
-
-- names
-- email addresses
-- user IDs
-- environment names
-- internal URLs
-- tenant information
-- record IDs
-- production data
-- browser tabs
-- notifications
-- tokens or credentials
-
-If there is any doubt about whether information is suitable for public distribution, do not publish it until it has been reviewed.
-
----
+If the organization later provides a centrally managed GitHub App or equivalent publishing identity, that should be preferred over individually owned PATs for a long-lived team integration.
 
 # Responsibilities
 
