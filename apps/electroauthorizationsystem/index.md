@@ -1,9 +1,11 @@
 ---
 title: Electro Authorization System
-description: Hurtigguider og brukerdokumentasjon for Electro Authorization System.
-language: Norsk
+description_nb: Hurtigguider og brukerdokumentasjon for Electro Authorization System.
+description_en: Quick guides and user documentation for Electro Authorization System.
+languages: nb,en
 status: Published
 order: 10
+initials: EAS
 ---
 
 # Elektro-sikkerhetskort
