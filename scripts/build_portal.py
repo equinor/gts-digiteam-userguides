@@ -14,7 +14,8 @@ OUTPUT_FILE = ROOT / "_site" / "index.html"
 
 class AppMetadata(TypedDict):
     app_id: str
-    title: str
+    title_nb: str
+    title_en: str
     description_nb: str
     description_en: str
     languages: list[str]
@@ -28,15 +29,17 @@ def read_frontmatter(markdown_file: Path) -> dict[str, str]:
     """
     Read simple YAML-style frontmatter from a Markdown file.
 
-    Supported format:
+    Example:
 
     ---
-    title: Application name
+    title_nb: Elektroautorisasjonssystem
+    title_en: Electro Authorization System
     description_nb: Norsk beskrivelse
     description_en: English description
     languages: nb,en
     status: Published
     order: 10
+    initials: EA
     ---
     """
 
@@ -78,7 +81,7 @@ def read_frontmatter(markdown_file: Path) -> dict[str, str]:
 
 
 def parse_order(value: str | None) -> int:
-    """Convert the order metadata to an integer."""
+    """Convert order metadata to an integer."""
 
     if value is None:
         return 9999
@@ -91,13 +94,13 @@ def parse_order(value: str | None) -> int:
 
 def parse_languages(value: str | None) -> list[str]:
     """
-    Convert language metadata into a normalized language list.
+    Convert language metadata to normalized language codes.
 
-    Supported examples:
+    Examples:
 
     languages: nb,en
     languages: nb
-    languages: no, en
+    languages: no,en
     """
 
     if not value:
@@ -127,7 +130,7 @@ def parse_languages(value: str | None) -> list[str]:
 
 def make_initials(title: str) -> str:
     """
-    Create short initials for the application card icon.
+    Create short initials for the application card.
 
     Examples:
     Electro Authorization System -> EA
@@ -140,13 +143,15 @@ def make_initials(title: str) -> str:
         "of",
         "the",
         "og",
-        "for",
         "av",
     }
 
     words = [
         word
-        for word in re.findall(r"[A-Za-zÆØÅæøå0-9]+", title)
+        for word in re.findall(
+            r"[A-Za-zÆØÅæøå0-9]+",
+            title,
+        )
         if word.lower() not in ignored_words
     ]
 
@@ -156,19 +161,29 @@ def make_initials(title: str) -> str:
     if len(words) == 1:
         return words[0][:2].upper()
 
-    return "".join(word[0] for word in words[:2]).upper()
+    return "".join(
+        word[0]
+        for word in words[:2]
+    ).upper()
 
 
 def get_apps() -> list[AppMetadata]:
-    """Discover all published applications under apps/*/index.md."""
+    """
+    Discover published applications under apps/*/index.md.
+    """
 
     apps: list[AppMetadata] = []
 
     if not APPS_DIR.exists():
-        print(f"Applications directory does not exist: {APPS_DIR}")
+        print(
+            f"Applications directory does not exist: "
+            f"{APPS_DIR}"
+        )
         return apps
 
-    for app_directory in sorted(APPS_DIR.iterdir()):
+    for app_directory in sorted(
+        APPS_DIR.iterdir()
+    ):
         if not app_directory.is_dir():
             continue
 
@@ -181,9 +196,14 @@ def get_apps() -> list[AppMetadata]:
             )
             continue
 
-        metadata = read_frontmatter(index_file)
+        metadata = read_frontmatter(
+            index_file
+        )
 
-        status = metadata.get("status", "Published").strip()
+        status = metadata.get(
+            "status",
+            "Published",
+        ).strip()
 
         if status.lower() != "published":
             print(
@@ -194,15 +214,38 @@ def get_apps() -> list[AppMetadata]:
 
         app_id = app_directory.name
 
-        default_title = app_id.replace("-", " ").replace("_", " ").title()
+        default_title = (
+            app_id
+            .replace("-", " ")
+            .replace("_", " ")
+            .title()
+        )
 
-        title = metadata.get("title", default_title)
+        # Support legacy "title" as fallback.
+        title_nb = metadata.get(
+            "title_nb",
+            metadata.get(
+                "title",
+                default_title,
+            ),
+        )
+
+        title_en = metadata.get(
+            "title_en",
+            metadata.get(
+                "title",
+                default_title,
+            ),
+        )
 
         description_nb = metadata.get(
             "description_nb",
             metadata.get(
                 "description",
-                "Brukerguide og dokumentasjon for applikasjonen.",
+                (
+                    "Brukerguide og dokumentasjon "
+                    "for applikasjonen."
+                ),
             ),
         )
 
@@ -210,7 +253,10 @@ def get_apps() -> list[AppMetadata]:
             "description_en",
             metadata.get(
                 "description",
-                "User guide and documentation for the application.",
+                (
+                    "User guide and documentation "
+                    "for the application."
+                ),
             ),
         )
 
@@ -221,19 +267,24 @@ def get_apps() -> list[AppMetadata]:
             )
         )
 
+        initials = metadata.get(
+            "initials",
+            make_initials(title_en),
+        )
+
         apps.append(
             {
                 "app_id": app_id,
-                "title": title,
+                "title_nb": title_nb,
+                "title_en": title_en,
                 "description_nb": description_nb,
                 "description_en": description_en,
                 "languages": languages,
                 "status": status,
-                "order": parse_order(metadata.get("order")),
-                "initials": metadata.get(
-                    "initials",
-                    make_initials(title),
+                "order": parse_order(
+                    metadata.get("order")
                 ),
+                "initials": initials,
                 "url": f"apps/{app_id}/",
             }
         )
@@ -242,13 +293,15 @@ def get_apps() -> list[AppMetadata]:
         apps,
         key=lambda app: (
             app["order"],
-            app["title"].casefold(),
+            app["title_nb"].casefold(),
         ),
     )
 
 
-def render_language_tags(languages: list[str]) -> str:
-    """Render available language indicators for an application."""
+def render_language_tags(
+    languages: list[str],
+) -> str:
+    """Render available language tags."""
 
     labels = {
         "nb": "NO",
@@ -258,7 +311,10 @@ def render_language_tags(languages: list[str]) -> str:
     tags: list[str] = []
 
     for language in languages:
-        label = labels.get(language, language.upper())
+        label = labels.get(
+            language,
+            language.upper(),
+        )
 
         tags.append(
             f"""
@@ -271,12 +327,19 @@ def render_language_tags(languages: list[str]) -> str:
     return "\n".join(tags)
 
 
-def render_sidebar_apps(apps: list[AppMetadata]) -> str:
-    """Render application links in the left navigation."""
+def render_sidebar_apps(
+    apps: list[AppMetadata],
+) -> str:
+    """
+    Render applications in the left navigation.
+    """
 
     if not apps:
         return """
-        <p class="portal-nav__empty" data-i18n="noPublishedGuides">
+        <p
+          class="portal-nav__empty"
+          data-i18n="noPublishedGuides"
+        >
           Ingen publiserte brukerguider
         </p>
         """
@@ -284,8 +347,20 @@ def render_sidebar_apps(apps: list[AppMetadata]) -> str:
     items: list[str] = []
 
     for app in apps:
-        title = html.escape(app["title"], quote=True)
-        url = html.escape(app["url"], quote=True)
+        title_nb = html.escape(
+            app["title_nb"],
+            quote=True,
+        )
+
+        title_en = html.escape(
+            app["title_en"],
+            quote=True,
+        )
+
+        url = html.escape(
+            app["url"],
+            quote=True,
+        )
 
         items.append(
             f"""
@@ -298,7 +373,12 @@ def render_sidebar_apps(apps: list[AppMetadata]) -> str:
                 aria-hidden="true"
               ></span>
 
-              <span>{title}</span>
+              <span
+                data-nb="{title_nb}"
+                data-en="{title_en}"
+              >
+                {title_nb}
+              </span>
             </a>
             """
         )
@@ -306,8 +386,12 @@ def render_sidebar_apps(apps: list[AppMetadata]) -> str:
     return "\n".join(items)
 
 
-def render_app_cards(apps: list[AppMetadata]) -> str:
-    """Render one application card for each published guide."""
+def render_app_cards(
+    apps: list[AppMetadata],
+) -> str:
+    """
+    Render one card for each published application.
+    """
 
     if not apps:
         return """
@@ -317,7 +401,8 @@ def render_app_cards(apps: list[AppMetadata]) -> str:
           </h3>
 
           <p data-i18n="guidesAppearAutomatically">
-            Publiserte brukerguider vises automatisk her.
+            Publiserte brukerguider vises
+            automatisk her.
           </p>
         </div>
         """
@@ -325,26 +410,48 @@ def render_app_cards(apps: list[AppMetadata]) -> str:
     cards: list[str] = []
 
     for app in apps:
-        title = html.escape(app["title"], quote=True)
+        title_nb = html.escape(
+            app["title_nb"],
+            quote=True,
+        )
+
+        title_en = html.escape(
+            app["title_en"],
+            quote=True,
+        )
+
         description_nb = html.escape(
             app["description_nb"],
             quote=True,
         )
+
         description_en = html.escape(
             app["description_en"],
             quote=True,
         )
-        initials = html.escape(app["initials"], quote=True)
-        url = html.escape(app["url"], quote=True)
 
-        language_tags = render_language_tags(
-            app["languages"]
+        initials = html.escape(
+            app["initials"],
+            quote=True,
+        )
+
+        url = html.escape(
+            app["url"],
+            quote=True,
+        )
+
+        language_tags = (
+            render_language_tags(
+                app["languages"]
+            )
         )
 
         cards.append(
             f"""
             <article class="app-card">
+
               <div class="app-card__header">
+
                 <div
                   class="app-card__icon"
                   aria-hidden="true"
@@ -358,9 +465,12 @@ def render_app_cards(apps: list[AppMetadata]) -> str:
                 >
                   Publisert
                 </span>
+
               </div>
 
+
               <div class="app-card__content">
+
                 <p
                   class="app-card__eyebrow"
                   data-i18n="userGuide"
@@ -368,8 +478,12 @@ def render_app_cards(apps: list[AppMetadata]) -> str:
                   Brukerguide
                 </p>
 
-                <h3 class="app-card__title">
-                  {title}
+                <h3
+                  class="app-card__title"
+                  data-nb="{title_nb}"
+                  data-en="{title_en}"
+                >
+                  {title_nb}
                 </h3>
 
                 <p
@@ -379,9 +493,12 @@ def render_app_cards(apps: list[AppMetadata]) -> str:
                 >
                   {description_nb}
                 </p>
+
               </div>
 
+
               <div class="app-card__footer">
+
                 <div
                   class="app-card__languages"
                   aria-label="Tilgjengelige språk"
@@ -392,9 +509,12 @@ def render_app_cards(apps: list[AppMetadata]) -> str:
                 <a
                   class="eds-button"
                   href="{url}"
-                  data-aria-label-nb="Åpne brukerguiden for {title}"
-                  data-aria-label-en="Open the user guide for {title}"
-                  aria-label="Åpne brukerguiden for {title}"
+                  data-aria-label-nb=
+                    "Åpne brukerguiden for {title_nb}"
+                  data-aria-label-en=
+                    "Open the user guide for {title_en}"
+                  aria-label=
+                    "Åpne brukerguiden for {title_nb}"
                 >
                   <span data-i18n="openGuide">
                     Åpne brukerguide
@@ -404,7 +524,9 @@ def render_app_cards(apps: list[AppMetadata]) -> str:
                     →
                   </span>
                 </a>
+
               </div>
+
             </article>
             """
         )
@@ -414,94 +536,176 @@ def render_app_cards(apps: list[AppMetadata]) -> str:
 
 def build_translations() -> str:
     """
-    Return translation data as valid JavaScript JSON.
-
-    json.dumps protects quotes and special characters.
+    Return translation data as JSON for JavaScript.
     """
 
     translations = {
         "nb": {
-            "pageTitle": "GTS DigiTeam | Brukerguider",
+            "pageTitle": (
+                "GTS DigiTeam | Brukerguider"
+            ),
             "pageDescription": (
                 "Brukerguider for applikasjoner "
                 "utviklet av GTS DigiTeam."
             ),
-            "skipLink": "Hopp til hovedinnhold",
-            "brandSubtitle": "Brukerguider",
-            "language": "Språk",
-            "languageSelectorLabel": "Velg språk",
-            "mainNavigation": "Hovedmeny",
-            "menu": "Meny",
-            "allGuides": "Alle brukerguider",
-            "applications": "Applikasjoner",
-            "maintainedBy": "Vedlikeholdes av GTS DigiTeam",
-            "documentation": "Dokumentasjon",
-            "title": "Brukerguider",
+            "skipLink": (
+                "Hopp til hovedinnhold"
+            ),
+            "brandSubtitle": (
+                "Brukerguider"
+            ),
+            "language": (
+                "Språk"
+            ),
+            "languageSelectorLabel": (
+                "Velg språk"
+            ),
+            "mainNavigation": (
+                "Hovedmeny"
+            ),
+            "menu": (
+                "Meny"
+            ),
+            "allGuides": (
+                "Alle brukerguider"
+            ),
+            "applications": (
+                "Applikasjoner"
+            ),
+            "maintainedBy": (
+                "Vedlikeholdes av GTS DigiTeam"
+            ),
+            "documentation": (
+                "Dokumentasjon"
+            ),
+            "title": (
+                "Brukerguider"
+            ),
             "ingress": (
-                "Finn hurtigguider og brukerdokumentasjon "
-                "for applikasjoner utviklet og vedlikeholdt "
+                "Finn hurtigguider og "
+                "brukerdokumentasjon for "
+                "applikasjoner utviklet og "
+                "vedlikeholdt av GTS DigiTeam."
+            ),
+            "availableGuides": (
+                "Tilgjengelige brukerguider"
+            ),
+            "published": (
+                "publisert"
+            ),
+            "publishedPlural": (
+                "publiserte"
+            ),
+            "publishedStatus": (
+                "Publisert"
+            ),
+            "userGuide": (
+                "Brukerguide"
+            ),
+            "openGuide": (
+                "Åpne brukerguide"
+            ),
+            "availableLanguages": (
+                "Tilgjengelige språk"
+            ),
+            "footerText": (
+                "Dokumentasjonen vedlikeholdes "
                 "av GTS DigiTeam."
             ),
-            "availableGuides": "Tilgjengelige brukerguider",
-            "published": "publisert",
-            "publishedPlural": "publiserte",
-            "publishedStatus": "Publisert",
-            "userGuide": "Brukerguide",
-            "openGuide": "Åpne brukerguide",
-            "availableLanguages": "Tilgjengelige språk",
-            "footerText": (
-                "Dokumentasjonen vedlikeholdes av GTS DigiTeam."
-            ),
             "footerUpdated": (
-                "Innholdet oppdateres automatisk ved publisering."
+                "Innholdet oppdateres automatisk "
+                "ved publisering."
             ),
             "noPublishedGuides": (
                 "Ingen publiserte brukerguider"
             ),
             "guidesAppearAutomatically": (
-                "Publiserte brukerguider vises automatisk her."
+                "Publiserte brukerguider vises "
+                "automatisk her."
             ),
         },
         "en": {
-            "pageTitle": "GTS DigiTeam | User guides",
+            "pageTitle": (
+                "GTS DigiTeam | User guides"
+            ),
             "pageDescription": (
                 "User guides for applications "
                 "developed by GTS DigiTeam."
             ),
-            "skipLink": "Skip to main content",
-            "brandSubtitle": "User guides",
-            "language": "Language",
-            "languageSelectorLabel": "Select language",
-            "mainNavigation": "Main menu",
-            "menu": "Menu",
-            "allGuides": "All user guides",
-            "applications": "Applications",
-            "maintainedBy": "Maintained by GTS DigiTeam",
-            "documentation": "Documentation",
-            "title": "User guides",
+            "skipLink": (
+                "Skip to main content"
+            ),
+            "brandSubtitle": (
+                "User guides"
+            ),
+            "language": (
+                "Language"
+            ),
+            "languageSelectorLabel": (
+                "Select language"
+            ),
+            "mainNavigation": (
+                "Main menu"
+            ),
+            "menu": (
+                "Menu"
+            ),
+            "allGuides": (
+                "All user guides"
+            ),
+            "applications": (
+                "Applications"
+            ),
+            "maintainedBy": (
+                "Maintained by GTS DigiTeam"
+            ),
+            "documentation": (
+                "Documentation"
+            ),
+            "title": (
+                "User guides"
+            ),
             "ingress": (
-                "Find quick guides and user documentation "
-                "for applications developed and maintained "
+                "Find quick guides and user "
+                "documentation for applications "
+                "developed and maintained by "
+                "GTS DigiTeam."
+            ),
+            "availableGuides": (
+                "Available user guides"
+            ),
+            "published": (
+                "published"
+            ),
+            "publishedPlural": (
+                "published"
+            ),
+            "publishedStatus": (
+                "Published"
+            ),
+            "userGuide": (
+                "User guide"
+            ),
+            "openGuide": (
+                "Open user guide"
+            ),
+            "availableLanguages": (
+                "Available languages"
+            ),
+            "footerText": (
+                "Documentation is maintained "
                 "by GTS DigiTeam."
             ),
-            "availableGuides": "Available user guides",
-            "published": "published",
-            "publishedPlural": "published",
-            "publishedStatus": "Published",
-            "userGuide": "User guide",
-            "openGuide": "Open user guide",
-            "availableLanguages": "Available languages",
-            "footerText": (
-                "Documentation is maintained by GTS DigiTeam."
-            ),
             "footerUpdated": (
-                "Content is automatically updated when published."
+                "Content is automatically updated "
+                "when published."
             ),
             "noPublishedGuides": (
                 "No user guides have been published"
             ),
             "guidesAppearAutomatically": (
-                "Published user guides will appear here automatically."
+                "Published user guides will appear "
+                "here automatically."
             ),
         },
     }
@@ -513,12 +717,21 @@ def build_translations() -> str:
     )
 
 
-def build_page(apps: list[AppMetadata]) -> str:
+def build_page(
+    apps: list[AppMetadata],
+) -> str:
     """Build the complete portal front page."""
 
-    sidebar_apps = render_sidebar_apps(apps)
-    app_cards = render_app_cards(apps)
+    sidebar_apps = render_sidebar_apps(
+        apps
+    )
+
+    app_cards = render_app_cards(
+        apps
+    )
+
     translations = build_translations()
+
     guide_count = len(apps)
 
     published_key = (
@@ -529,7 +742,9 @@ def build_page(apps: list[AppMetadata]) -> str:
 
     return f"""<!doctype html>
 <html lang="nb" data-color-scheme="light">
+
 <head>
+
   <meta charset="utf-8">
 
   <meta
@@ -543,15 +758,20 @@ def build_page(apps: list[AppMetadata]) -> str:
     content="Brukerguider for applikasjoner utviklet av GTS DigiTeam."
   >
 
-  <title>GTS DigiTeam | Brukerguider</title>
+  <title>
+    GTS DigiTeam | Brukerguider
+  </title>
 
   <link
     rel="stylesheet"
     href="styles/userguide.css"
   >
+
 </head>
 
+
 <body class="portal-page">
+
   <a
     class="skip-link"
     href="#main-content"
@@ -560,15 +780,24 @@ def build_page(apps: list[AppMetadata]) -> str:
     Hopp til hovedinnhold
   </a>
 
+
   <header class="portal-header">
-    <a class="portal-brand" href="./">
+
+    <a
+      class="portal-brand"
+      href="./"
+    >
+
       <span
         class="portal-brand__mark"
         aria-hidden="true"
       ></span>
 
       <span class="portal-brand__text">
-        <strong>GTS DigiTeam</strong>
+
+        <strong>
+          GTS DigiTeam
+        </strong>
 
         <span
           class="portal-brand__subtitle"
@@ -576,10 +805,14 @@ def build_page(apps: list[AppMetadata]) -> str:
         >
           Brukerguider
         </span>
+
       </span>
+
     </a>
 
+
     <div class="language-selector">
+
       <span
         class="language-selector__label"
         data-i18n="language"
@@ -593,6 +826,7 @@ def build_page(apps: list[AppMetadata]) -> str:
         role="group"
         aria-label="Velg språk"
       >
+
         <button
           type="button"
           class="language-button is-active"
@@ -610,17 +844,25 @@ def build_page(apps: list[AppMetadata]) -> str:
         >
           EN
         </button>
+
       </div>
+
     </div>
+
   </header>
 
+
   <div class="portal-layout">
+
+
     <aside class="portal-sidebar">
+
       <nav
         id="main-navigation"
         class="portal-nav"
         aria-label="Hovedmeny"
       >
+
         <p
           class="portal-nav__heading"
           data-i18n="menu"
@@ -628,23 +870,32 @@ def build_page(apps: list[AppMetadata]) -> str:
           Meny
         </p>
 
+
         <a
           class="portal-nav__item is-active"
           href="./"
           aria-current="page"
         >
+
           <span
             class="portal-nav__home-icon"
             aria-hidden="true"
           >
-            <span class="portal-nav__home-roof"></span>
-            <span class="portal-nav__home-body"></span>
+            <span
+              class="portal-nav__home-roof"
+            ></span>
+
+            <span
+              class="portal-nav__home-body"
+            ></span>
           </span>
 
           <span data-i18n="allGuides">
             Alle brukerguider
           </span>
+
         </a>
+
 
         <p
           class="
@@ -656,24 +907,34 @@ def build_page(apps: list[AppMetadata]) -> str:
           Applikasjoner
         </p>
 
+
         {sidebar_apps}
+
       </nav>
 
+
       <div class="portal-sidebar__footer">
+
         <p data-i18n="maintainedBy">
           Vedlikeholdes av GTS DigiTeam
         </p>
+
       </div>
+
     </aside>
+
 
     <main
       id="main-content"
       class="portal-main"
     >
+
+
       <section
         class="portal-hero"
         aria-labelledby="page-title"
       >
+
         <p
           class="portal-eyebrow"
           data-i18n="documentation"
@@ -692,18 +953,24 @@ def build_page(apps: list[AppMetadata]) -> str:
           class="portal-ingress"
           data-i18n="ingress"
         >
-          Finn hurtigguider og brukerdokumentasjon for
-          applikasjoner utviklet og vedlikeholdt av
-          GTS DigiTeam.
+          Finn hurtigguider og
+          brukerdokumentasjon for
+          applikasjoner utviklet og
+          vedlikeholdt av GTS DigiTeam.
         </p>
+
       </section>
+
 
       <section
         class="portal-guides"
         aria-labelledby="guide-heading"
       >
+
         <div class="portal-section-header">
+
           <div>
+
             <p
               class="portal-eyebrow"
               data-i18n="applications"
@@ -717,198 +984,332 @@ def build_page(apps: list[AppMetadata]) -> str:
             >
               Tilgjengelige brukerguider
             </h2>
+
           </div>
 
-          <span class="portal-guide-count">
-            <strong>{guide_count}</strong>
 
-            <span data-i18n="{published_key}">
+          <span class="portal-guide-count">
+
+            <strong>
+              {guide_count}
+            </strong>
+
+            <span
+              data-i18n="{published_key}"
+            >
               publisert
             </span>
+
           </span>
+
         </div>
+
 
         <div class="portal-card-grid">
+
           {app_cards}
+
         </div>
+
       </section>
+
     </main>
+
   </div>
 
+
   <footer class="portal-footer">
+
     <p data-i18n="footerText">
-      Dokumentasjonen vedlikeholdes av GTS DigiTeam.
+      Dokumentasjonen vedlikeholdes
+      av GTS DigiTeam.
     </p>
 
     <p data-i18n="footerUpdated">
-      Innholdet oppdateres automatisk ved publisering.
+      Innholdet oppdateres automatisk
+      ved publisering.
     </p>
+
   </footer>
 
+
   <script>
+
     (() => {{
+
       "use strict";
 
-      const translations = {translations};
 
-      const root = document.documentElement;
+      const translations =
+        {translations};
+
+
+      const root =
+        document.documentElement;
+
+
       const description =
-        document.getElementById("page-description");
+        document.getElementById(
+          "page-description"
+        );
+
 
       const languageButtons =
-        document.querySelectorAll("[data-language]");
+        document.querySelectorAll(
+          "[data-language]"
+        );
+
 
       const languageButtonGroup =
-        document.getElementById("language-buttons");
+        document.getElementById(
+          "language-buttons"
+        );
+
 
       const mainNavigation =
-        document.getElementById("main-navigation");
+        document.getElementById(
+          "main-navigation"
+        );
+
 
       function getSavedLanguage() {{
+
         try {{
-          const savedLanguage = localStorage.getItem(
-            "gts-userguide-language"
-          );
+
+          const savedLanguage =
+            localStorage.getItem(
+              "gts-userguide-language"
+            );
+
 
           if (
             savedLanguage === "nb" ||
             savedLanguage === "en"
           ) {{
+
             return savedLanguage;
+
           }}
+
         }} catch (error) {{
+
           console.info(
             "Language preference could not be read.",
             error
           );
+
         }}
 
+
         return "nb";
+
       }}
 
-      function saveLanguage(language) {{
+
+      function saveLanguage(
+        language
+      ) {{
+
         try {{
+
           localStorage.setItem(
             "gts-userguide-language",
             language
           );
+
         }} catch (error) {{
+
           console.info(
             "Language preference could not be saved.",
             error
           );
+
         }}
+
       }}
 
-      function setLanguage(language) {{
+
+      function setLanguage(
+        language
+      ) {{
+
         if (!translations[language]) {{
           language = "nb";
         }}
 
-        const text = translations[language];
+
+        const text =
+          translations[language];
+
 
         root.lang = language;
 
-        document.title = text.pageTitle;
+
+        document.title =
+          text.pageTitle;
+
 
         if (description) {{
+
           description.setAttribute(
             "content",
             text.pageDescription
           );
+
         }}
 
+
         document
-          .querySelectorAll("[data-i18n]")
+          .querySelectorAll(
+            "[data-i18n]"
+          )
           .forEach((element) => {{
-            const key = element.dataset.i18n;
+
+            const key =
+              element.dataset.i18n;
+
 
             if (text[key]) {{
-              element.textContent = text[key];
+
+              element.textContent =
+                text[key];
+
             }}
+
           }});
 
+
         document
-          .querySelectorAll("[data-nb][data-en]")
+          .querySelectorAll(
+            "[data-nb][data-en]"
+          )
           .forEach((element) => {{
+
             element.textContent =
               language === "nb"
                 ? element.dataset.nb
                 : element.dataset.en;
+
           }});
+
 
         document
           .querySelectorAll(
-            "[data-aria-label-nb][data-aria-label-en]"
+            "[data-aria-label-nb]" +
+            "[data-aria-label-en]"
           )
           .forEach((element) => {{
+
             const label =
               language === "nb"
                 ? element.dataset.ariaLabelNb
                 : element.dataset.ariaLabelEn;
 
+
             element.setAttribute(
               "aria-label",
               label
             );
+
           }});
 
-        languageButtons.forEach((button) => {{
-          const isActive =
-            button.dataset.language === language;
 
-          button.classList.toggle(
-            "is-active",
-            isActive
-          );
+        languageButtons.forEach(
+          (button) => {{
 
-          button.setAttribute(
-            "aria-pressed",
-            String(isActive)
-          );
-        }});
+            const isActive =
+              button.dataset.language ===
+              language;
+
+
+            button.classList.toggle(
+              "is-active",
+              isActive
+            );
+
+
+            button.ria-pressed",
+              String(isActive)
+            );
+
+          }}
+        );
+
 
         if (languageButtonGroup) {{
+
           languageButtonGroup.setAttribute(
             "aria-label",
             text.languageSelectorLabel
           );
+
         }}
 
+
         if (mainNavigation) {{
+
           mainNavigation.setAttribute(
             "aria-label",
             text.mainNavigation
           );
+
         }}
 
+
         document
-          .querySelectorAll(".app-card__languages")
+          .querySelectorAll(
+            ".app-card__languages"
+          )
           .forEach((element) => {{
+
             element.setAttribute(
               "aria-label",
               text.availableLanguages
             );
+
           }});
 
+
         saveLanguage(language);
+
       }}
 
-      languageButtons.forEach((button) => {{
-        button.addEventListener("click", () => {{
-          setLanguage(button.dataset.language);
-        }});
-      }});
 
-      setLanguage(getSavedLanguage());
+      languageButtons.forEach(
+        (button) => {{
+
+          button.addEventListener(
+            "click",
+            () => {{
+
+              setLanguage(
+                button.dataset.language
+              );
+
+            }}
+          );
+
+        }}
+      );
+
+
+      setLanguage(
+        getSavedLanguage()
+      );
+
     }})();
+
   </script>
+
 </body>
+
 </html>
 """
 
 
 def main() -> None:
+    """Generate the portal front page."""
+
     apps = get_apps()
 
     OUTPUT_FILE.parent.mkdir(
@@ -916,7 +1317,9 @@ def main() -> None:
         exist_ok=True,
     )
 
-    output = build_page(apps)
+    output = build_page(
+        apps
+    )
 
     OUTPUT_FILE.write_text(
         output,
@@ -930,7 +1333,9 @@ def main() -> None:
 
     for app in apps:
         print(
-            f"  - {app['title']} "
+            f"  - "
+            f"{app['title_nb']} / "
+            f"{app['title_en']} "
             f"({', '.join(app['languages'])})"
         )
 
