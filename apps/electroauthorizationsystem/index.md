@@ -6,11 +6,7 @@ status: Published
 order: 10
 ---
 
-# Hurtigguider
-
-Resten av brukerguiden fortsetter her.
-
-# Hurtigguider – Elektro-sikkerhetskort
+# Elektro-sikkerhetskort
 
 Guidene beskriver funksjoner som finnes i dagens app. Menynavn vises på norsk
 eller engelsk avhengig av språkvalget i profilen. Du må være logget inn med
