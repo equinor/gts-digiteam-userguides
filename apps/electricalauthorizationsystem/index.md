@@ -1,6 +1,6 @@
 ---
 title_en: Electrical Authorization System
-title_no: Elektro Sikkerhetskort
+title_nb: Elektro Sikkerhetskort
 description_nb: Hurtigguider og brukerdokumentasjon for Elektro Sikkerhetskort.
 description_en: Quick guides and user documentation for Electrical Authorization System.
 languages: nb,en
