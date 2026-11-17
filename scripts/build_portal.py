@@ -28,19 +28,6 @@ class AppMetadata(TypedDict):
 def read_frontmatter(markdown_file: Path) -> dict[str, str]:
     """
     Read simple YAML-style frontmatter from a Markdown file.
-
-    Example:
-
-    ---
-    title_nb: Norsk apptittel
-    title_en: English apptitle
-    description_nb: Norsk beskrivelse
-    description_en: English description
-    languages: nb,en
-    status: Published
-    order: 10
-    initials: EA
-    ---
     """
 
     content = markdown_file.read_text(encoding="utf-8")
@@ -92,50 +79,8 @@ def parse_order(value: str | None) -> int:
         return 9999
 
 
-def parse_languages(value: str | None) -> list[str]:
-    """
-    Convert language metadata to normalized language codes.
-
-    Examples:
-
-    languages: nb,en
-    languages: nb
-    languages: no,en
-    """
-
-    if not value:
-        return ["nb"]
-
-    language_aliases = {
-        "nb": "nb",
-        "no": "nb",
-        "norwegian": "nb",
-        "norsk": "nb",
-        "en": "en",
-        "english": "en",
-        "engelsk": "en",
-    }
-
-    languages: list[str] = []
-
-    for item in value.split(","):
-        normalized = item.strip().lower()
-        language = language_aliases.get(normalized)
-
-        if language and language not in languages:
-            languages.append(language)
-
-    return languages or ["nb"]
-
-
 def make_initials(title: str) -> str:
-    """
-    Create short initials for the application card.
-
-    Examples:
-    Electro Authorization System -> EA
-    Crane Inspection -> CI
-    """
+    """Create short initials for the application card."""
 
     ignored_words = {
         "and",
@@ -169,7 +114,17 @@ def make_initials(title: str) -> str:
 
 def get_apps() -> list[AppMetadata]:
     """
-    Discover published applications under apps/*/index.md.
+    Discover published applications.
+
+    Expected structure:
+
+    apps/
+      <app-id>/
+        nb/
+          index.md
+        en/
+          index.md
+        images/
     """
 
     apps: list[AppMetadata] = []
@@ -181,27 +136,57 @@ def get_apps() -> list[AppMetadata]:
         )
         return apps
 
-    for app_directory in sorted(
-        APPS_DIR.iterdir()
-    ):
+    for app_directory in sorted(APPS_DIR.iterdir()):
         if not app_directory.is_dir():
             continue
 
-        nb_index = app_directory / "nb" / "index.md"
-en_index = app_directory / "en" / "index.md"
+        app_id = app_directory.name
 
-if nb_index.exists():
-    metadata_file = nb_index
-elif en_index.exists():
-    metadata_file = en_index
-else:
-    print(
-        f"Skipping {app_directory.name}: "
-        "no nb/index.md or en/index.md found."
-    )
-    continue
+        nb_index = (
+            app_directory
+            / "nb"
+            / "index.md"
+        )
 
-metadata = read_frontmatter(metadata_file)
+        en_index = (
+            app_directory
+            / "en"
+            / "index.md"
+        )
+
+        # Determine which languages actually exist.
+        languages: list[str] = []
+
+        if nb_index.exists():
+            languages.append("nb")
+
+        if en_index.exists():
+            languages.append("en")
+
+        if not languages:
+            print(
+                f"Skipping {app_id}: "
+                "no nb/index.md or en/index.md found."
+            )
+            continue
+
+        # Prefer Norwegian metadata.
+        # Fall back to English if Norwegian is unavailable.
+        if nb_index.exists():
+            metadata_file = nb_index
+        else:
+            metadata_file = en_index
+
+        metadata = read_frontmatter(
+            metadata_file
+        )
+
+        if not metadata:
+            print(
+                f"WARNING: No frontmatter found in "
+                f"{metadata_file}"
+            )
+
         status = metadata.get(
             "status",
             "Published",
@@ -209,12 +194,10 @@ metadata = read_frontmatter(metadata_file)
 
         if status.lower() != "published":
             print(
-                f"Skipping {app_directory.name}: "
+                f"Skipping {app_id}: "
                 f"status is {status!r}."
             )
             continue
-
-        app_id = app_directory.name
 
         default_title = (
             app_id
@@ -223,22 +206,39 @@ metadata = read_frontmatter(metadata_file)
             .title()
         )
 
-        # Support legacy "title" as fallback.
+        legacy_title = metadata.get(
+            "title"
+        )
+
         title_nb = metadata.get(
-            "title_nb",
-            metadata.get(
-                "title",
-                default_title,
-            ),
+            "title_nb"
         )
 
         title_en = metadata.get(
-            "title_en",
-            metadata.get(
-                "title",
-                default_title,
-            ),
+            "title_en"
         )
+
+        if not title_nb:
+            title_nb = (
+                legacy_title
+                or default_title
+            )
+
+            print(
+                f"WARNING: {app_id} has no title_nb. "
+                f"Using fallback: {title_nb!r}"
+            )
+
+        if not title_en:
+            title_en = (
+                legacy_title
+                or default_title
+            )
+
+            print(
+                f"WARNING: {app_id} has no title_en. "
+                f"Using fallback: {title_en!r}"
+            )
 
         description_nb = metadata.get(
             "description_nb",
@@ -260,13 +260,6 @@ metadata = read_frontmatter(metadata_file)
                     "for the application."
                 ),
             ),
-        )
-
-        languages = parse_languages(
-            metadata.get(
-                "languages",
-                metadata.get("language"),
-            )
         )
 
         initials = metadata.get(
@@ -332,9 +325,7 @@ def render_language_tags(
 def render_sidebar_apps(
     apps: list[AppMetadata],
 ) -> str:
-    """
-    Render applications in the left navigation.
-    """
+    """Render applications in the left navigation."""
 
     if not apps:
         return """
@@ -359,8 +350,16 @@ def render_sidebar_apps(
             quote=True,
         )
 
+        # Default navigation goes to Norwegian if available.
+        # Otherwise use English.
+        default_language = (
+            "nb"
+            if "nb" in app["languages"]
+            else "en"
+        )
+
         url = html.escape(
-            app["url"],
+            f"apps/{app['app_id']}/{default_language}/",
             quote=True,
         )
 
@@ -369,6 +368,7 @@ def render_sidebar_apps(
             <a
               class="portal-nav__item"
               href="{url}"
+              data-app-id="{html.escape(app['app_id'])}"
             >
               <span
                 class="portal-nav__app-indicator"
@@ -391,9 +391,7 @@ def render_sidebar_apps(
 def render_app_cards(
     apps: list[AppMetadata],
 ) -> str:
-    """
-    Render one card for each published application.
-    """
+    """Render one card for each published application."""
 
     if not apps:
         return """
@@ -403,8 +401,7 @@ def render_app_cards(
           </h3>
 
           <p data-i18n="guidesAppearAutomatically">
-            Publiserte brukerguider vises
-            automatisk her.
+            Publiserte brukerguider vises automatisk her.
           </p>
         </div>
         """
@@ -437,15 +434,23 @@ def render_app_cards(
             quote=True,
         )
 
+        default_language = (
+            "nb"
+            if "nb" in app["languages"]
+            else "en"
+        )
+
         url = html.escape(
-            app["url"],
+            (
+                f"apps/"
+                f"{app['app_id']}/"
+                f"{default_language}/"
+            ),
             quote=True,
         )
 
-        language_tags = (
-            render_language_tags(
-                app["languages"]
-            )
+        language_tags = render_language_tags(
+            app["languages"]
         )
 
         cards.append(
@@ -469,7 +474,6 @@ def render_app_cards(
                 </span>
 
               </div>
-
 
               <div class="app-card__content">
 
@@ -498,7 +502,6 @@ def render_app_cards(
 
               </div>
 
-
               <div class="app-card__footer">
 
                 <div
@@ -511,12 +514,12 @@ def render_app_cards(
                 <a
                   class="eds-button"
                   href="{url}"
-                  data-aria-label-nb=
-                    "Åpne brukerguiden for {title_nb}"
-                  data-aria-label-en=
-                    "Open the user guide for {title_en}"
-                  aria-label=
-                    "Åpne brukerguiden for {title_nb}"
+                  data-app-id="{html.escape(app['app_id'])}"
+                  data-has-nb="{str('nb' in app['languages']).lower()}"
+                  data-has-en="{str('en' in app['languages']).lower()}"
+                  data-aria-label-nb="Åpne brukerguiden for {title_nb}"
+                  data-aria-label-en="Open the user guide for {title_en}"
+                  aria-label="Åpne brukerguiden for {title_nb}"
                 >
                   <span data-i18n="openGuide">
                     Åpne brukerguide
@@ -537,9 +540,7 @@ def render_app_cards(
 
 
 def build_translations() -> str:
-    """
-    Return translation data as JSON for JavaScript.
-    """
+    """Return translation data as JSON for JavaScript."""
 
     translations = {
         "nb": {
@@ -558,12 +559,6 @@ def build_translations() -> str:
             ),
             "language": (
                 "Språk"
-            ),
-            "languageSelectorLabel": (
-                "Velg språk"
-            ),
-            "mainNavigation": (
-                "Hovedmeny"
             ),
             "menu": (
                 "Meny"
@@ -584,9 +579,8 @@ def build_translations() -> str:
                 "Brukerguider"
             ),
             "ingress": (
-                "Finn hurtigguider og "
-                "brukerdokumentasjon for "
-                "applikasjoner utviklet og "
+                "Finn hurtigguider og brukerdokumentasjon "
+                "for applikasjoner utviklet og "
                 "vedlikeholdt av GTS DigiTeam."
             ),
             "availableGuides": (
@@ -606,9 +600,6 @@ def build_translations() -> str:
             ),
             "openGuide": (
                 "Åpne brukerguide"
-            ),
-            "availableLanguages": (
-                "Tilgjengelige språk"
             ),
             "footerText": (
                 "Dokumentasjonen vedlikeholdes "
@@ -643,12 +634,6 @@ def build_translations() -> str:
             "language": (
                 "Language"
             ),
-            "languageSelectorLabel": (
-                "Select language"
-            ),
-            "mainNavigation": (
-                "Main menu"
-            ),
             "menu": (
                 "Menu"
             ),
@@ -668,10 +653,9 @@ def build_translations() -> str:
                 "User guides"
             ),
             "ingress": (
-                "Find quick guides and user "
-                "documentation for applications "
-                "developed and maintained by "
-                "GTS DigiTeam."
+                "Find quick guides and user documentation "
+                "for applications developed and maintained "
+                "by GTS DigiTeam."
             ),
             "availableGuides": (
                 "Available user guides"
@@ -690,9 +674,6 @@ def build_translations() -> str:
             ),
             "openGuide": (
                 "Open user guide"
-            ),
-            "availableLanguages": (
-                "Available languages"
             ),
             "footerText": (
                 "Documentation is maintained "
@@ -724,14 +705,8 @@ def build_page(
 ) -> str:
     """Build the complete portal front page."""
 
-    sidebar_apps = render_sidebar_apps(
-        apps
-    )
-
-    app_cards = render_app_cards(
-        apps
-    )
-
+    sidebar_apps = render_sidebar_apps(apps)
+    app_cards = render_app_cards(apps)
     translations = build_translations()
 
     guide_count = len(apps)
@@ -746,7 +721,6 @@ def build_page(
 <html lang="nb" data-color-scheme="light">
 
 <head>
-
   <meta charset="utf-8">
 
   <meta
@@ -760,17 +734,13 @@ def build_page(
     content="Brukerguider for applikasjoner utviklet av GTS DigiTeam."
   >
 
-  <title>
-    GTS DigiTeam | Brukerguider
-  </title>
+  <title>GTS DigiTeam | Brukerguider</title>
 
   <link
     rel="stylesheet"
     href="styles/userguide.css"
   >
-
 </head>
-
 
 <body class="portal-page">
 
@@ -782,14 +752,12 @@ def build_page(
     Hopp til hovedinnhold
   </a>
 
-
   <header class="portal-header">
 
     <a
       class="portal-brand"
       href="./"
     >
-
       <span
         class="portal-brand__mark"
         aria-hidden="true"
@@ -809,9 +777,7 @@ def build_page(
         </span>
 
       </span>
-
     </a>
-
 
     <div class="language-selector">
 
@@ -823,12 +789,10 @@ def build_page(
       </span>
 
       <div
-        id="language-buttons"
         class="language-selector__buttons"
         role="group"
         aria-label="Velg språk"
       >
-
         <button
           type="button"
           class="language-button is-active"
@@ -846,21 +810,17 @@ def build_page(
         >
           EN
         </button>
-
       </div>
 
     </div>
 
   </header>
 
-
   <div class="portal-layout">
-
 
     <aside class="portal-sidebar">
 
       <nav
-        id="main-navigation"
         class="portal-nav"
         aria-label="Hovedmeny"
       >
@@ -872,13 +832,11 @@ def build_page(
           Meny
         </p>
 
-
         <a
           class="portal-nav__item is-active"
           href="./"
           aria-current="page"
         >
-
           <span
             class="portal-nav__home-icon"
             aria-hidden="true"
@@ -895,9 +853,7 @@ def build_page(
           <span data-i18n="allGuides">
             Alle brukerguider
           </span>
-
         </a>
-
 
         <p
           class="
@@ -909,34 +865,27 @@ def build_page(
           Applikasjoner
         </p>
 
-
         {sidebar_apps}
 
       </nav>
 
-
       <div class="portal-sidebar__footer">
-
         <p data-i18n="maintainedBy">
           Vedlikeholdes av GTS DigiTeam
         </p>
-
       </div>
 
     </aside>
-
 
     <main
       id="main-content"
       class="portal-main"
     >
 
-
       <section
         class="portal-hero"
         aria-labelledby="page-title"
       >
-
         <p
           class="portal-eyebrow"
           data-i18n="documentation"
@@ -955,14 +904,11 @@ def build_page(
           class="portal-ingress"
           data-i18n="ingress"
         >
-          Finn hurtigguider og
-          brukerdokumentasjon for
-          applikasjoner utviklet og
-          vedlikeholdt av GTS DigiTeam.
+          Finn hurtigguider og brukerdokumentasjon
+          for applikasjoner utviklet og vedlikeholdt
+          av GTS DigiTeam.
         </p>
-
       </section>
-
 
       <section
         class="portal-guides"
@@ -972,7 +918,6 @@ def build_page(
         <div class="portal-section-header">
 
           <div>
-
             <p
               class="portal-eyebrow"
               data-i18n="applications"
@@ -986,31 +931,22 @@ def build_page(
             >
               Tilgjengelige brukerguider
             </h2>
-
           </div>
 
-
           <span class="portal-guide-count">
-
-            <strong>
-              {guide_count}
-            </strong>
+            <strong>{guide_count}</strong>
 
             <span
               data-i18n="{published_key}"
             >
               publisert
             </span>
-
           </span>
 
         </div>
 
-
         <div class="portal-card-grid">
-
           {app_cards}
-
         </div>
 
       </section>
@@ -1019,80 +955,146 @@ def build_page(
 
   </div>
 
-
   <footer class="portal-footer">
 
     <p data-i18n="footerText">
-      Dokumentasjonen vedlikeholdes
-      av GTS DigiTeam.
+      Dokumentasjonen vedlikeholdes av GTS DigiTeam.
     </p>
 
     <p data-i18n="footerUpdated">
-      Innholdet oppdateres automatisk
-      ved publisering.
+      Innholdet oppdateres automatisk ved publisering.
     </p>
 
   </footer>
 
-
   <script>
     (() => {{
+
       "use strict";
 
       const translations = {translations};
 
-      const buttons = document.querySelectorAll(
-        ".language-button"
-      );
+      const buttons =
+        document.querySelectorAll(
+          ".language-button"
+        );
+
+      const guideLinks =
+        document.querySelectorAll(
+          "[data-app-id]"
+        );
+
+      function updateGuideLinks(language) {{
+
+        guideLinks.forEach((link) => {{
+
+          const appId =
+            link.dataset.appId;
+
+          const hasNb =
+            link.dataset.hasNb !== "false";
+
+          const hasEn =
+            link.dataset.hasEn !== "false";
+
+          let targetLanguage = language;
+
+          if (
+            targetLanguage === "nb" &&
+            !hasNb &&
+            hasEn
+          ) {{
+            targetLanguage = "en";
+          }}
+
+          if (
+            targetLanguage === "en" &&
+            !hasEn &&
+            hasNb
+          ) {{
+            targetLanguage = "nb";
+          }}
+
+          link.href =
+            "apps/" +
+            appId +
+            "/" +
+            targetLanguage +
+            "/";
+        }});
+
+      }}
 
       function setLanguage(language) {{
-        const text = translations[language];
+
+        const text =
+          translations[language];
 
         if (!text) {{
           return;
         }}
 
-        document.documentElement.lang = language;
+        document.documentElement.lang =
+          language;
 
-        document.querySelectorAll(
-          "[data-i18n]"
-        ).forEach((element) => {{
-          const key = element.dataset.i18n;
+        document
+          .querySelectorAll(
+            "[data-i18n]"
+          )
+          .forEach((element) => {{
 
-          if (Object.prototype.hasOwnProperty.call(text, key)) {{
-            element.textContent = text[key];
-          }}
-        }});
+            const key =
+              element.dataset.i18n;
 
-        document.querySelectorAll(
-          "[data-nb][data-en]"
-        ).forEach((element) => {{
-          if (language === "en") {{
-            element.textContent = element.dataset.en;
-          }} else {{
-            element.textContent = element.dataset.nb;
-          }}
-        }});
+            if (
+              Object.prototype.hasOwnProperty.call(
+                text,
+                key
+              )
+            ) {{
+              element.textContent =
+                text[key];
+            }}
 
-        document.querySelectorAll(
-          "[data-aria-label-nb][data-aria-label-en]"
-        ).forEach((element) => {{
-          if (language === "en") {{
+          }});
+
+        document
+          .querySelectorAll(
+            "[data-nb][data-en]"
+          )
+          .forEach((element) => {{
+
+            element.textContent =
+              language === "en"
+                ? element.dataset.en
+                : element.dataset.nb;
+
+          }});
+
+        document
+          .querySelectorAll(
+            "[data-aria-label-nb]" +
+            "[data-aria-label-en]"
+          )
+          .forEach((element) => {{
+
+            const label =
+              language === "en"
+                ? element.dataset.ariaLabelEn
+                : element.dataset.ariaLabelNb;
+
             element.setAttribute(
               "aria-label",
-              element.dataset.ariaLabelEn
+              label
             );
-          }} else {{
-            element.setAttribute(
-              "aria-label",
-              element.dataset.ariaLabelNb
-            );
-          }}
-        }});
+
+          }});
 
         buttons.forEach((button) => {{
+
           const active =
-            button.dataset.language === language;
+            button.dataset.language ===
+            language;
 
           button.classList.toggle(
             "is-active",
@@ -1103,18 +1105,29 @@ def build_page(
             "aria-pressed",
             active ? "true" : "false"
           );
+
         }});
 
-        document.title = text.pageTitle;
+        document.title =
+          text.pageTitle;
+
+        updateGuideLinks(language);
       }}
 
       buttons.forEach((button) => {{
-        button.addEventListener("click", () => {{
-          setLanguage(button.dataset.language);
-        }});
+
+        button.addEventListener(
+          () => {{
+            setLanguage(
+              button.dataset.language
+            );
+          }}
+        );
+
       }});
 
       setLanguage("nb");
+
     }})();
   </script>
 
@@ -1134,9 +1147,7 @@ def main() -> None:
         exist_ok=True,
     )
 
-    output = build_page(
-        apps
-    )
+    output = build_page(apps)
 
     OUTPUT_FILE.write_text(
         output,
