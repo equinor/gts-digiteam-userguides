@@ -1,13 +1,3 @@
----
-title_nb: Elektro Sikkerhetskort
-title_en: Electrical Authorization System
-description_nb: Hurtigguider og brukerdokumentasjon for Elektro Sikkerhetskort.
-description_en: Quick guides and user documentation for Electrical Authorization System.
-status: Published
-order: 10
-initials: EAS
----
-
 # Quick guides - Electrical safety cards
 
 These guides describe features available in the current app. Menu labels appear
