@@ -1,15 +1,4 @@
----
-title_en: Electrical Authorization System
-title_nb: Elektro Sikkerhetskort
-description_nb: Hurtigguider og brukerdokumentasjon for Elektro Sikkerhetskort.
-description_en: Quick guides and user documentation for Electrical Authorization System.
-languages: nb,en
-status: Published
-order: 10
-initials: EAS
----
-
-# Elektro Sikkerhetskort
+# Hurtigguider – Elektro-sikkerhetskort
 
 Guidene beskriver funksjoner som finnes i dagens app. Menynavn vises på norsk
 eller engelsk avhengig av språkvalget i profilen. Du må være logget inn med
@@ -17,9 +6,15 @@ Equinor-konto for å bruke appen. Hvilke handlinger du kan utføre, avhenger av
 rollen og myndigheten du har fått på den valgte installasjonen.
 
 Skjermbildene er representative testvisninger med syntetiske, anonymiserte
-opplysninger. Sirkelmarkørene viser til trinnnumrene i teksten; samme nummer
+opplysninger. Sirkelmarkørene viser til trinnumrene i teksten; samme nummer
 kan markere flere steder i ett trinn. Utseende og tilgjengelige handlinger kan
 variere med rolle, valgt installasjon og appversjon.
+
+## Åpne appen
+
+Test: https://apps.equinor.com/eas20test
+
+Prod: Kommer
 
 ## 1. Installatør – klargjøre og følge opp installasjonen
 
@@ -45,7 +40,7 @@ rollen mangler, kontakt Admin/Superbruker.
      gjennomtenkt; kortinnehavere kan måtte signere på nytt når kortets
      tilganger endres.
 
-![Fanen Roller for en demo-installasjon. Markør 1 viser installasjonsvelgeren, og markør 2 viser installasjonsfanene.](images/hurtigguider/installasjon-roller.png)
+![Fanen Roller for en demo-installasjon. Markør 1 viser installasjonsvelgeren, og markør 2 viser installasjonsfanene.](../images/hurtigguider/installasjon-roller.png)
 
 *Figur 1. Velg installasjonen (1), og åpne riktig fane under Installasjoner (2).*
 
@@ -54,7 +49,7 @@ rollen mangler, kontakt Admin/Superbruker.
    er kontrollert. Bare publiserte instrukser er gjeldende for vanlig visning.
    Instrukser er et eget bibliotek, ikke en del av kortsigneringen.
 
-![Instruksbiblioteket for en demo-installasjon. Markør 3 viser menypunktet Instrukser.](images/hurtigguider/instrukser.png)
+![Instruksbiblioteket for en demo-installasjon. Markør 3 viser menypunktet Instrukser.](../images/hurtigguider/instrukser.png)
 
 *Figur 2. Åpne Instrukser i trinn 3.*
 
@@ -80,7 +75,7 @@ selv en tillatelse.
 1. Velg riktig installasjon i installasjonsvelgeren øverst i appen.
 2. Åpne **Sikkerhetskort** og velg **Nytt sikkerhetskort**.
 
-![Sikkerhetskortlisten for en demo-installasjon. Markør 1 viser installasjonsvelgeren; markør 2 viser Sikkerhetskort og Nytt sikkerhetskort.](images/hurtigguider/sikkerhetskort.png)
+![Sikkerhetskortlisten for en demo-installasjon. Markør 1 viser installasjonsvelgeren; markør 2 viser Sikkerhetskort og Nytt sikkerhetskort.](../images/hurtigguider/sikkerhetskort.png)
 
 *Figur 3. Velg installasjonen (1), og åpne siden og start veiviseren (2).*
 
@@ -115,7 +110,7 @@ kan utstedes på nytt med samme kortnummer; tidligere historikk beholdes.
 
 1. Åpne **Nøkler** og velg **Lever ut nøkler** eller **Lever inn nøkler**.
 
-![Nøkkelsiden for en demo-installasjon. Markør 1 viser Nøkler, 2 Lever ut nøkler og 3 Lever inn nøkler.](images/hurtigguider/nokler.png)
+![Nøkkelsiden for en demo-installasjon. Markør 1 viser Nøkler, 2 Lever ut nøkler og 3 Lever inn nøkler.](../images/hurtigguider/nokler.png)
 
 *Figur 4. Åpne Nøkler (1), og velg utlevering (2) eller innlevering (3).*
 
@@ -146,7 +141,7 @@ det gir ikke rett til å endre eller signere andres poster.
    opplysningene. Hvis du har fått en Teams-godkjenning, kan du godkjenne i
    Teams eller signere i appen.
 
-![Oversiktssiden i appen. Markør 1 viser installasjonsvelgeren, 2 Mine aksjoner og 3 Gå til signering.](images/hurtigguider/oversikt.png)
+![Oversiktssiden i appen. Markør 1 viser installasjonsvelgeren, 2 Mine aksjoner og 3 Gå til signering.](../images/hurtigguider/oversikt.png)
 
 *Figur 5. Velg installasjon (1), finn oppgavene dine (2), og åpne signeringen (3).*
 
