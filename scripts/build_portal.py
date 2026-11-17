@@ -187,19 +187,21 @@ def get_apps() -> list[AppMetadata]:
         if not app_directory.is_dir():
             continue
 
-        index_file = app_directory / "index.md"
+        nb_index = app_directory / "nb" / "index.md"
+en_index = app_directory / "en" / "index.md"
 
-        if not index_file.exists():
-            print(
-                f"Skipping {app_directory.name}: "
-                "apps/<app>/index.md was not found."
-            )
-            continue
+if nb_index.exists():
+    metadata_file = nb_index
+elif en_index.exists():
+    metadata_file = en_index
+else:
+    print(
+        f"Skipping {app_directory.name}: "
+        "no nb/index.md or en/index.md found."
+    )
+    continue
 
-        metadata = read_frontmatter(
-            index_file
-        )
-
+metadata = read_frontmatter(metadata_file)
         status = metadata.get(
             "status",
             "Published",
