@@ -368,19 +368,22 @@ def render_sidebar_apps(
             <a
               class="portal-nav__item"
               href="{url}"
-              data-app-id="{html.escape(app['app_id'])}"
+              data-guide-app="{html.escape(app['app_id'])}"
+              data-has-nb="{str('nb' in app['languages']).lower()}"
+              data-has-en="{str('en' in app['languages']).lower()}"
             >
               <span
                 class="portal-nav__app-indicator"
                 aria-hidden="true"
-              ></span>
+                ></span>
 
               <span
                 data-nb="{title_nb}"
                 data-en="{title_en}"
-              >
-                {title_nb}
+                >
+                  {title_nb}
               </span>
+
             </a>
             """
         )
@@ -514,7 +517,7 @@ def render_app_cards(
                 <a
                   class="eds-button"
                   href="{url}"
-                  data-app-id="{html.escape(app['app_id'])}"
+                  data-guide-app="{html.escape(app['app_id'])}"
                   data-has-nb="{str('nb' in app['languages']).lower()}"
                   data-has-en="{str('en' in app['languages']).lower()}"
                   data-aria-label-nb="Åpne brukerguiden for {title_nb}"
@@ -974,77 +977,36 @@ def build_page(
 
       const translations = {translations};
 
-      const buttons =
-        document.querySelectorAll(
-          ".language-button"
-        );
+      const buttons = document.querySelectorAll(
+        ".language-button"
+      );
 
-      const guideLinks =
-        document.querySelectorAll(
-          "[data-app-id]"
-        );
-
-      function updateGuideLinks(language) {{
-
-        guideLinks.forEach((link) => {{
-
-          const appId =
-            link.dataset.appId;
-
-          const hasNb =
-            link.dataset.hasNb !== "false";
-
-          const hasEn =
-            link.dataset.hasEn !== "false";
-
-          let targetLanguage = language;
-
-          if (
-            targetLanguage === "nb" &&
-            !hasNb &&
-            hasEn
-          ) {{
-            targetLanguage = "en";
-          }}
-
-          if (
-            targetLanguage === "en" &&
-            !hasEn &&
-            hasNb
-          ) {{
-            targetLanguage = "nb";
-          }}
-
-          link.href =
-            "apps/" +
-            appId +
-            "/" +
-            targetLanguage +
-            "/";
-        }});
-
-      }}
 
       function setLanguage(language) {{
 
-        const text =
-          translations[language];
-
-        if (!text) {{
+        if (!translations[language]) {{
           return;
         }}
 
-        document.documentElement.lang =
-          language;
+        const text = translations[language];
+
+
+        /*
+         * Set document language.
+         */
+
+        document.documentElement.lang = language;
+
+
+        /*
+         * Translate portal UI.
+         */
 
         document
-          .querySelectorAll(
-            "[data-i18n]"
-          )
+          .querySelectorAll("[data-i18n]")
           .forEach((element) => {{
 
-            const key =
-              element.dataset.i18n;
+            const key = element.dataset.i18n;
 
             if (
               Object.prototype.hasOwnProperty.call(
@@ -1052,29 +1014,39 @@ def build_page(
                 key
               )
             ) {{
-              element.textContent =
-                text[key];
+              element.textContent = text[key];
             }}
 
           }});
 
+
+        /*
+         * Translate application names
+         * and descriptions.
+         */
+
         document
-          .querySelectorAll(
-            "[data-nb][data-en]"
-          )
+          .querySelectorAll("[data-nb][data-en]")
           .forEach((element) => {{
 
-            element.textContent =
-              language === "en"
-                ? element.dataset.en
-                : element.dataset.nb;
+            if (language === "en") {{
+              element.textContent =
+                element.dataset.en;
+            }} else {{
+              element.textContent =
+                element.dataset.nb;
+            }}
 
           }});
 
+
+        /*
+         * Translate accessible labels.
+         */
+
         document
           .querySelectorAll(
-            "[data-aria-label-nb]" +
-            "[data-aria-label-en]"
+            "[data-aria-label-nb][data-aria-label-en]"
           )
           .forEach((element) => {{
 
@@ -1090,11 +1062,15 @@ def build_page(
 
           }});
 
+
+        /*
+         * Update language buttons.
+         */
+
         buttons.forEach((button) => {{
 
           const active =
-            button.dataset.language ===
-            language;
+            button.dataset.language === language;
 
           button.classList.toggle(
             "is-active",
@@ -1108,23 +1084,83 @@ def build_page(
 
         }});
 
-        document.title =
-          text.pageTitle;
 
-        updateGuideLinks(language);
+        /*
+         * Update guide links to selected language.
+         */
+
+        document
+          .querySelectorAll("[data-guide-app]")
+          .forEach((link) => {{
+
+            const appId =
+              link.dataset.guideApp;
+
+            const hasNb =
+              link.dataset.hasNb === "true";
+
+            const hasEn =
+              link.dataset.hasEn === "true";
+
+            let targetLanguage = language;
+
+
+            if (
+              targetLanguage === "nb" &&
+              !hasNb &&
+              hasEn
+            ) {{
+              targetLanguage = "en";
+            }}
+
+
+            if (
+              targetLanguage === "en" &&
+              !hasEn &&
+              hasNb
+            ) {{
+              targetLanguage = "nb";
+            }}
+
+
+            link.href =
+              "apps/" +
+              appId +
+              "/" +
+              targetLanguage +
+              "/";
+
+          }});
+
+
+        /*
+         * Update browser title.
+         */
+
+        document.title = text.pageTitle;
+
       }}
+
 
       buttons.forEach((button) => {{
 
         button.addEventListener(
+          "click",
           () => {{
+
             setLanguage(
               button.dataset.language
             );
+
           }}
         );
 
-      }});
+      });
+
+
+      /*
+       * Initial portal language.
+       */
 
       setLanguage("nb");
 
