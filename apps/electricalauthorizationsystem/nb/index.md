@@ -8,7 +8,7 @@ order: 10
 initials: EAS
 ---
 
-# Hurtigguider – Elektro-sikkerhetskort
+# Hurtigguider – Elektro Sikkerhetskort
 
 Guidene beskriver funksjoner som finnes i dagens app. Menynavn vises på norsk
 eller engelsk avhengig av språkvalget i profilen. Du må være logget inn med
