@@ -1086,3 +1086,56 @@ blockquote {
   border: 2px solid currentColor;
   border-top: 0;
 }
+
+.guide-viewer {
+  min-width: 0;
+}
+
+.guide-viewer[hidden],
+.portal-hero[hidden],
+.portal-guides[hidden] {
+  display: none;
+}
+
+.guide-viewer__header {
+  min-height: 72px;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  border-bottom: 1px solid var(--eds-border-subtle);
+}
+
+.guide-viewer__title {
+  margin: 0;
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+}
+
+.guide-viewer__direct-link {
+  flex-shrink: 0;
+  color: var(--eds-text-link);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.guide-viewer__frame {
+  width: 100%;
+  min-height: calc(100vh - 220px);
+  display: block;
+  background: var(--eds-bg-canvas);
+  border: 1px solid var(--eds-border-subtle);
+  border-radius: var(--eds-radius-md);
+}
+
+@media (max-width: 720px) {
+  .guide-viewer__header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .guide-viewer__frame {
+    min-height: calc(100vh - 260px);
+  }
+}
