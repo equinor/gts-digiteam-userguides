@@ -32,14 +32,13 @@ jobs:
 
       - name: Create output directory
         run: |
-          mkdir -p _site
           mkdir -p _site/styles
 
       - name: Copy shared styles
         run: |
           cp -r styles/. _site/styles/
 
-      - name: Prepare application files
+      - name: Copy application assets
         run: |
           for app_dir in apps/*; do
             if [ ! -d "$app_dir" ]; then
@@ -50,28 +49,11 @@ jobs:
             target_dir="_site/apps/$app_id"
 
             echo "Preparing application: $app_id"
-
             mkdir -p "$target_dir"
 
-            # Copy images and other shared application assets.
             if [ -d "$app_dir/images" ]; then
-              cp -r \
-                "$app_dir/images" \
-                "$target_dir/images"
+              cp -r "$app_dir/images" "$target_dir/images"
             fi
-
-            # Copy other application assets if required.
-            #
-            # Markdown source files are not copied because
-            # they are converted to HTML in the next step.
-            find "$app_dir" \
-              -mindepth 1 \
-              -maxdepth 1 \
-              -type d \
-              ! -name "nb" \
-              ! -name "en" \
-              ! -name "images" \
-              -exec cp -r {} "$target_dir/" \;
           done
 
       - name: Convert Markdown guides to HTML
@@ -79,19 +61,13 @@ jobs:
           while IFS= read -r input; do
             language_dir=$(dirname "$input")
             language=$(basename "$language_dir")
-
             app_dir=$(dirname "$language_dir")
             app_id=$(basename "$app_dir")
 
             output_dir="_site/apps/$app_id/$language"
             output_file="$output_dir/index.html"
 
-            echo "Building:"
-            echo "  Application: $app_id"
-            echo "  Language:    $language"
-            echo "  Source:      $input"
-            echo "  Output:      $output_file"
-
+            echo "Building $app_id ($language)"
             mkdir -p "$output_dir"
 
             docker run --rm \
@@ -133,23 +109,16 @@ jobs:
             exit 1
           fi
 
-          find _site/apps \
-            -type f \
-            -name index.html \
-            -print
-
       - name: Generate portal front page
         run: |
           python3 scripts/build_portal.py
 
       - name: Validate portal front page
         run: |
-          if [ ! -f "_site/index.html" ]; then
+          test -f _site/index.html || {
             echo "::error::Portal front page was not generated."
             exit 1
-          fi
-
-          echo "Portal front page generated successfully."
+          }
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
