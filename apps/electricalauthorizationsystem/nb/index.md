@@ -162,7 +162,11 @@ det gir ikke rett til å endre eller signere andres poster.
    Kortdetaljene kan også lenke til relevante instrukser.
 6. Fra kortdetaljene kan du be om å få et gyldig kort sendt som PDF til
    e-postadressen som er registrert på kortet.
-7. Åpne **Profil** for å lagre foretrukket installasjon og språk.
+7. Åpne **Profil** for å lagre foretrukket installasjon og språk. Her kan du også
+   slette profilen din. Det fjerner navn, e-post og tilknytning til brukeren din,
+   men kortene og historikken beholdes. Du kan ikke slette profilen mens du har
+   roller, sikkerhetskort i kraft, nøkler eller åpne forespørsler; kontakt en
+   administrator. Neste gang du åpner appen kan du opprette en ny profil.
 
 Du kan bare signere mottak for egne kort og nøkler. Hvis du ikke finner kortet
 eller en handling du trenger, kontakt installasjonens Installatør /

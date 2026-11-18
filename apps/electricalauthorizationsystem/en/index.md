@@ -165,7 +165,11 @@ this does not give you permission to change or sign other people's records.
    The card details may also link to relevant instructions.
 6. From the card details, you can request a valid card as a PDF sent to the
    email address registered on the card.
-7. Open **Profile** to save your preferred installation and language.
+7. Open **Profile** to save your preferred installation and language. You can also
+   delete your profile there. It removes your name, email and link to your user,
+   but the cards and history are kept. You cannot delete the profile while you
+   have roles, safety cards in force, keys or open requests; contact an
+   administrator. The next time you open the app you can create a new profile.
 
 You can only sign receipt for your own cards and keys. If you cannot find your
 card or an action you need, contact the installation's Installer / person in
