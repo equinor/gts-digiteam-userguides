@@ -217,6 +217,8 @@ def build_translations() -> str:
             "brandSubtitle": "Brukerguider",
             "language": "Språk",
             "menu": "Meny",
+            "collapseMenu": "Skjul meny",
+            "expandMenu": "Vis meny",
             "allGuides": "Alle brukerguider",
             "applications": "Applikasjoner",
             "maintainedBy": "Vedlikeholdes av GTS DigiTeam",
@@ -241,6 +243,8 @@ def build_translations() -> str:
             "brandSubtitle": "User guides",
             "language": "Language",
             "menu": "Menu",
+            "collapseMenu": "Hide menu",
+            "expandMenu": "Show menu",
             "allGuides": "All user guides",
             "applications": "Applications",
             "maintainedBy": "Maintained by GTS DigiTeam",
@@ -297,8 +301,15 @@ def build_page(apps: list[AppMetadata]) -> str:
 
   <div class="portal-layout">
     <aside class="portal-sidebar">
-      <nav class="portal-nav" aria-label="Hovedmeny">
+      <div class="portal-sidebar__header">
         <p class="portal-nav__heading" data-i18n="menu">Meny</p>
+        <button id="portal-menu-toggle" class="portal-menu-toggle" type="button"
+                aria-controls="portal-sidebar-nav" aria-expanded="true"
+                aria-label="Skjul meny" title="Skjul meny" hidden>
+          <span class="portal-menu-toggle__icon" aria-hidden="true"></span>
+        </button>
+      </div>
+      <nav id="portal-sidebar-nav" class="portal-nav" aria-label="Hovedmeny">
         <a id="portal-home-link" class="portal-nav__item is-active" href="./" aria-current="page">
           <span class="portal-nav__home-icon" aria-hidden="true">
             <span class="portal-nav__home-roof"></span>
@@ -357,6 +368,9 @@ def build_page(apps: list[AppMetadata]) -> str:
       const translations = __TRANSLATIONS__;
       const languageButtons = document.querySelectorAll(".language-button");
       const appLinks = document.querySelectorAll(".portal-app-link");
+      const portalLayout = document.querySelector(".portal-layout");
+      const sidebarNav = document.getElementById("portal-sidebar-nav");
+      const menuToggle = document.getElementById("portal-menu-toggle");
       const homeLink = document.getElementById("portal-home-link");
       const portalHero = document.getElementById("portal-hero");
       const portalHome = document.getElementById("portal-home");
@@ -364,9 +378,21 @@ def build_page(apps: list[AppMetadata]) -> str:
       const guideFrame = document.getElementById("guide-frame");
       const guideTitle = document.getElementById("guide-viewer-title");
       const directLink = document.getElementById("guide-direct-link");
+      const mobileLayout = window.matchMedia("(max-width: 720px)");
 
       let currentLanguage = "nb";
       let currentApp = null;
+      let sidebarCollapsed = false;
+
+      function updateSidebar() {
+        const collapsed = sidebarCollapsed && !mobileLayout.matches;
+        const label = translations[currentLanguage][collapsed ? "expandMenu" : "collapseMenu"];
+        portalLayout.classList.toggle("is-sidebar-collapsed", collapsed);
+        sidebarNav.hidden = collapsed;
+        menuToggle.setAttribute("aria-expanded", collapsed ? "false" : "true");
+        menuToggle.setAttribute("aria-label", label);
+        menuToggle.title = label;
+      }
 
       function findAppLink(appId) {
         return Array.from(appLinks).find(
@@ -494,9 +520,17 @@ def build_page(apps: list[AppMetadata]) -> str:
           button.setAttribute("aria-pressed", active ? "true" : "false");
         });
 
+        updateSidebar();
         if (currentApp) openGuide(currentApp, false);
         if (updateUrl) replaceUrl(currentApp);
       }
+
+      menuToggle.addEventListener("click", () => {
+        sidebarCollapsed = !sidebarCollapsed;
+        updateSidebar();
+      });
+      mobileLayout.addEventListener("change", updateSidebar);
+      menuToggle.hidden = false;
 
       appLinks.forEach((link) => {
         link.addEventListener("click", (event) => {

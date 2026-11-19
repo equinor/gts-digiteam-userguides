@@ -2,6 +2,8 @@
 
 Find published guides at <https://equinor.github.io/gts-digiteam-userguides>.
 
+On screens wider than 720 px, use the sidebar arrow to collapse or expand navigation. At 720 px or narrower, navigation remains at the top.
+
 # Publish a user guide
 
 Application teams keep guide content and images in their application repository. A GitHub Actions workflow copies them to `equinor/gts-digiteam-userguides`. The portal repository then builds and deploys the public site.
