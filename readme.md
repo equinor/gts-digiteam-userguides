@@ -2,7 +2,7 @@
 
 Find published guides at <https://equinor.github.io/gts-digiteam-userguides>.
 
-On screens wider than 720 px, use the sidebar arrow to collapse or expand navigation. At 720 px or narrower, navigation remains at the top.
+On screens wider than 720 px, use the labeled sidebar button to switch between full navigation and a compact rail with Home and application initials. All guides remain accessible; hover over or focus a compact link to see its full name. At 720 px or narrower, navigation remains at the top.
 
 # Publish a user guide
 
@@ -55,6 +55,8 @@ initials: EA
 ```
 
 `title_*` and `description_*` provide the translated application-card text. Set `status: Published` to show the application. `order` is optional (lower numbers appear first), as is `initials` (the portal can generate these).
+
+The compact sidebar displays up to the first three characters of `initials`; shorter values are kept as given.
 
 Choose a stable, lowercase application ID without spaces, such as `electroauthorizationsystem`. It is the application’s directory name in the portal, not its displayed title. Avoid changing it after publication because it determines the guide URL.
 

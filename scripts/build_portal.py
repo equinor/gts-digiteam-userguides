@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import html
 import json
 import re
@@ -9,6 +10,7 @@ from typing import TypedDict
 ROOT = Path(__file__).resolve().parents[1]
 APPS_DIR = ROOT / "apps"
 OUTPUT_FILE = ROOT / "_site" / "index.html"
+STYLESHEET_FILE = ROOT / "styles" / "userguide.css"
 
 
 class AppMetadata(TypedDict):
@@ -153,12 +155,15 @@ def render_sidebar_apps(apps: list[AppMetadata]) -> str:
     for app in apps:
         title_nb = html.escape(app["title_nb"], quote=True)
         title_en = html.escape(app["title_en"], quote=True)
+        initials = html.escape(
+            (app["initials"].strip() or make_initials(app["title_en"]))[:3]
+        )
         default_language = "nb" if "nb" in app["languages"] else "en"
         href = f'apps/{html.escape(app["app_id"], quote=True)}/{default_language}/'
         items.append(
             f'''<a class="portal-nav__item portal-app-link" href="{href}" {app_data_attributes(app)}>
-  <span class="portal-nav__app-indicator" aria-hidden="true"></span>
-  <span data-nb="{title_nb}" data-en="{title_en}">{title_nb}</span>
+  <span class="portal-nav__app-indicator" aria-hidden="true"><span class="portal-nav__app-initials">{initials}</span></span>
+  <span class="portal-nav__label" data-nb="{title_nb}" data-en="{title_en}">{title_nb}</span>
 </a>'''
         )
     return "\n".join(items)
@@ -217,8 +222,10 @@ def build_translations() -> str:
             "brandSubtitle": "Brukerguider",
             "language": "Språk",
             "menu": "Meny",
-            "collapseMenu": "Skjul meny",
-            "expandMenu": "Vis meny",
+            "collapseMenu": "Komprimer meny",
+            "expandMenu": "Utvid meny",
+            "collapseMenuShort": "Komprimer",
+            "expandMenuShort": "Utvid",
             "allGuides": "Alle brukerguider",
             "applications": "Applikasjoner",
             "maintainedBy": "Vedlikeholdes av GTS DigiTeam",
@@ -243,8 +250,10 @@ def build_translations() -> str:
             "brandSubtitle": "User guides",
             "language": "Language",
             "menu": "Menu",
-            "collapseMenu": "Hide menu",
-            "expandMenu": "Show menu",
+            "collapseMenu": "Collapse menu",
+            "expandMenu": "Expand menu",
+            "collapseMenuShort": "Collapse",
+            "expandMenuShort": "Expand",
             "allGuides": "All user guides",
             "applications": "Applications",
             "maintainedBy": "Maintained by GTS DigiTeam",
@@ -270,6 +279,7 @@ def build_translations() -> str:
 def build_page(apps: list[AppMetadata]) -> str:
     guide_count = len(apps)
     published_key = "published" if guide_count == 1 else "publishedPlural"
+    stylesheet_version = hashlib.sha256(STYLESHEET_FILE.read_bytes()).hexdigest()
     template = '''<!doctype html>
 <html lang="nb" data-color-scheme="light">
 <head>
@@ -277,7 +287,7 @@ def build_page(apps: list[AppMetadata]) -> str:
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Brukerguider for applikasjoner utviklet av GTS DigiTeam.">
   <title>GTS DigiTeam | Brukerguider</title>
-  <link rel="stylesheet" href="styles/userguide.css">
+  <link rel="stylesheet" href="styles/userguide.css?v=__STYLESHEET_VERSION__">
 </head>
 <body class="portal-page">
   <a class="skip-link" href="#main-content" data-i18n="skipLink">Hopp til hovedinnhold</a>
@@ -305,8 +315,13 @@ def build_page(apps: list[AppMetadata]) -> str:
         <p class="portal-nav__heading" data-i18n="menu">Meny</p>
         <button id="portal-menu-toggle" class="portal-menu-toggle" type="button"
                 aria-controls="portal-sidebar-nav" aria-expanded="true"
-                aria-label="Skjul meny" title="Skjul meny" hidden>
-          <span class="portal-menu-toggle__icon" aria-hidden="true"></span>
+                aria-label="Komprimer meny" title="Komprimer meny" hidden>
+          <svg class="portal-menu-toggle__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <rect x="3" y="4" width="18" height="16" rx="2"></rect>
+            <path d="M9 4v16"></path>
+            <path id="portal-menu-toggle-arrow" d="m16 9-3 3 3 3"></path>
+          </svg>
+          <span id="portal-menu-toggle-text">Komprimer</span>
         </button>
       </div>
       <nav id="portal-sidebar-nav" class="portal-nav" aria-label="Hovedmeny">
@@ -315,7 +330,7 @@ def build_page(apps: list[AppMetadata]) -> str:
             <span class="portal-nav__home-roof"></span>
             <span class="portal-nav__home-body"></span>
           </span>
-          <span data-i18n="allGuides">Alle brukerguider</span>
+          <span class="portal-nav__label" data-i18n="allGuides">Alle brukerguider</span>
         </a>
         <p class="portal-nav__heading portal-nav__heading--apps" data-i18n="applications">Applikasjoner</p>
         __SIDEBAR_APPS__
@@ -368,9 +383,11 @@ def build_page(apps: list[AppMetadata]) -> str:
       const translations = __TRANSLATIONS__;
       const languageButtons = document.querySelectorAll(".language-button");
       const appLinks = document.querySelectorAll(".portal-app-link");
+      const navLinks = document.querySelectorAll(".portal-nav__item");
       const portalLayout = document.querySelector(".portal-layout");
-      const sidebarNav = document.getElementById("portal-sidebar-nav");
       const menuToggle = document.getElementById("portal-menu-toggle");
+      const menuToggleText = document.getElementById("portal-menu-toggle-text");
+      const menuToggleArrow = document.getElementById("portal-menu-toggle-arrow");
       const homeLink = document.getElementById("portal-home-link");
       const portalHero = document.getElementById("portal-hero");
       const portalHome = document.getElementById("portal-home");
@@ -386,12 +403,14 @@ def build_page(apps: list[AppMetadata]) -> str:
 
       function updateSidebar() {
         const collapsed = sidebarCollapsed && !mobileLayout.matches;
-        const label = translations[currentLanguage][collapsed ? "expandMenu" : "collapseMenu"];
+        const text = translations[currentLanguage];
+        const label = text[collapsed ? "expandMenu" : "collapseMenu"];
         portalLayout.classList.toggle("is-sidebar-collapsed", collapsed);
-        sidebarNav.hidden = collapsed;
         menuToggle.setAttribute("aria-expanded", collapsed ? "false" : "true");
         menuToggle.setAttribute("aria-label", label);
         menuToggle.title = label;
+        menuToggleText.textContent = text[collapsed ? "expandMenuShort" : "collapseMenuShort"];
+        menuToggleArrow.setAttribute("d", collapsed ? "m13 9 3 3-3 3" : "m16 9-3 3 3 3");
       }
 
       function findAppLink(appId) {
@@ -415,7 +434,7 @@ def build_page(apps: list[AppMetadata]) -> str:
       }
 
       function setActiveNavigation(appId) {
-        document.querySelectorAll(".portal-nav__item").forEach((item) => {
+        navLinks.forEach((item) => {
           const active = appId
             ? item.dataset.guideApp === appId
             : item.id === "portal-home-link";
@@ -532,6 +551,17 @@ def build_page(apps: list[AppMetadata]) -> str:
       mobileLayout.addEventListener("change", updateSidebar);
       menuToggle.hidden = false;
 
+      navLinks.forEach((link) => {
+        const resetTooltip = () => link.classList.remove("is-tooltip-dismissed");
+        link.addEventListener("pointerenter", resetTooltip);
+        link.addEventListener("focus", resetTooltip);
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+          navLinks.forEach((link) => link.classList.add("is-tooltip-dismissed"));
+        }
+      });
+
       appLinks.forEach((link) => {
         link.addEventListener("click", (event) => {
           event.preventDefault();
@@ -578,6 +608,7 @@ def build_page(apps: list[AppMetadata]) -> str:
         .replace("__APP_CARDS__", render_app_cards(apps))
         .replace("__GUIDE_COUNT__", str(guide_count))
         .replace("__PUBLISHED_KEY__", published_key)
+        .replace("__STYLESHEET_VERSION__", stylesheet_version)
         .replace("__TRANSLATIONS__", build_translations())
     )
 
