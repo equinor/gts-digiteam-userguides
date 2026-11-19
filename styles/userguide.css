@@ -339,6 +339,14 @@ p {
  * Styling for generated user-guide content.
  */
 
+body:not(.portal-page) {
+  width: 100%;
+  min-width: 0;
+  max-width: calc(1200px + var(--eds-spacing-3xl));
+  margin-inline: auto;
+  padding: var(--eds-spacing-xl) clamp(var(--eds-spacing-md), 4vw, var(--eds-spacing-xl));
+}
+
 main > h1,
 main > h2,
 main > h3,
