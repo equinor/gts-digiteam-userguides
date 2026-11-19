@@ -30,7 +30,8 @@ Prod: Kommer
 
 **Forutsetning:** Admin/Superbruker har opprettet og aktivert installasjonen og
 tildelt deg rollen **Installatør / ansvarshavende**. Hvis installasjonen eller
-rollen mangler, kontakt Admin/Superbruker.
+rollen mangler, kontakt Admin/Superbruker. Er du selv administrator, se
+[6. Administrator – komme i gang](#6-administrator--komme-i-gang).
 
 1. Velg riktig installasjon i velgeren øverst i appen.
 2. Åpne **Installasjoner**, velg installasjonen og gå gjennom fanene:
@@ -228,3 +229,103 @@ firma og tildelt myndighet. Hvis du trenger utvidet eller fornyet myndighet,
 kontakt installasjonens Installatør / ansvarshavende. En ekstern mottaker uten
 Equinor-konto følger bare signeringsinstruksen i forrige avsnitt og kan ikke
 utføre utstederoppgaver i appen.
+
+## 6. Administrator – komme i gang
+
+**Forutsetning:** Miljøadministratoren har gitt deg Dataverse-rollen **EAS
+Functional Administrator**, direkte eller via et team. Alle som har denne
+rollen er administrator (Admin/Superbruker) i appen så lenge de har rollen.
+Rollen gir ikke Dataverse-administratorrettigheter.
+
+1. Åpne appen. Hvis den ikke er satt opp i miljøet, vises **Appen er ikke satt
+   opp i dette miljøet**. Velg **Initialiser appen**. Da opprettes
+   personprofilen din, rollen Admin for deg, standard tilgangsmal og
+   fargepalett. Du trenger ingen installasjon først. Initialiseringen fyller
+   bare inn det som mangler. Er du ikke den første, ber appen deg i stedet om å
+   opprette profilen din eller velge **Aktiver administratortilgang**.
+
+![Skjermen for å initialisere appen. Markør 1 viser knappen Initialiser appen.](../images/hurtigguider/admin-initialiser.png)
+
+*Figur 6. Velg Initialiser appen (1).*
+
+2. Åpne **Administrasjon** (1). Under **Standard tilgangsmal** ligger
+   tilgangene nye installasjoner starter med, og under **Fargepalett** ligger
+   fargene som markerer dem (2). Juster ved behov og velg **Lagre
+   standardoppsett** (3). Fanen **Slett kort, nøkler og profiler** brukes bare
+   til sletting som må gjøres av administrator, og krever en begrunnelse.
+
+![Administrasjon med fanen Standard tilgangsmal. Markør 1 viser menypunktet Administrasjon, 2 viser fanene og 3 viser Lagre standardoppsett.](../images/hurtigguider/admin-administrasjon.png)
+
+*Figur 7. Åpne Administrasjon (1), velg fane (2) og lagre endringer (3).*
+
+3. Åpne **Instrukser → Globale** og legg til instrukser som skal gjelde for alle
+   installasjoner. Publiser dem når de er kontrollert. Du kan deretter knytte en
+   global instruks til en tilgang i standard tilgangsmal.
+4. Åpne **Installasjoner** (1) og velg **Ny installasjon**. Velg **Felles
+   lokasjon** (2). Navn, kode og SAP-anlegg fylles ut fra lokasjonen, og du
+   kan endre navnet. Felles e-post og telefon er valgfrie. Finnes ikke
+   lokasjonen i listen, må den først opprettes som masterdata; kontakt
+   plattformteamet. En ny installasjon opprettes alltid som **Kladd**, og
+   standardtilgangene fra standard tilgangsmal opprettes automatisk og er låst.
+5. Legg til personene som skal ha roller på installasjonen. Under **Roller og
+   kontakter** velger du **Legg til rolle** (3):
+   1. Skriv minst to tegn av navnet eller e-postadressen og velg **Søk**.
+   2. Velg personen i listen **Person**.
+   3. Velg **Rolle**: **Installatør**, **Ansvarshavende**, **Bemyndiget** eller
+      **Stedfortreder**.
+   4. Fyll ut **Gyldig til**. For Installatør og Ansvarshavende kan feltet være
+      tomt (ubegrenset). Bemyndiget og Stedfortreder må ha en sluttdato; appen
+      foreslår ett år frem i tid.
+   5. Velg **Legg til**. Gjenta for hver person og rolle. Samme person kan være
+      både Installatør og Ansvarshavende; legg da til personen i begge
+      rollene.
+
+   Personene vises som kontakter under rollen (4). De får kort- og
+   nøkkelmyndighet på installasjonen. Legg som minimum inn én Installatør eller
+   Ansvarshavende, og gjerne en Stedfortreder. Du kan fjerne en person med
+   **Fjern** før du lagrer.
+
+![Skjema for ny installasjon med roller. Markør 1 viser menypunktet Installasjoner, 2 Felles lokasjon, 3 Legg til rolle, 4 rollene som er lagt til og 5 Lagre oppsett.](../images/hurtigguider/admin-ny-installasjon.png)
+
+*Figur 8. Åpne Installasjoner (1), velg lokasjon (2), legg til roller (3), kontroller dem (4) og lagre (5).*
+
+6. Velg **Lagre oppsett** (5). Installasjonen opprettes som Kladd og rollene
+   tildeles. Hvis en rolle ikke kunne tildeles, viser appen hvem det gjelder;
+   legg den til igjen under **Kontakter** på installasjonen (neste trinn).
+7. Fullfør kontakter og roller på installasjonen. Etter lagring åpnes
+   installasjonen. Åpne fanen **Kontakter** (1):
+   - **Equinor-kontakter:** Velg **Legg til Equinor-kontakt** (2), eller
+     **Legg til** i gruppen til rollen. Bruk **Rediger** for å legge inn
+     telefonnummer eller endre gyldighet, og **Fjern** for å fjerne en person.
+   - **Eksterne firma:** Velg **Nytt firma** (3). I steg 1 oppgir du firmanavn.
+     I steg 2 legger du til kontaktpersoner og eventuelt en ekstern rolle
+     (**Installatør ekstern** eller **Bemyndiget ekstern**). Eksterne roller
+     knyttes til firmaet og gjelder bare personer i eget firma. Du kan også legge
+     inn en kontaktperson uten rolle, og personer som ikke finnes i katalogen kan
+     legges inn manuelt.
+   - Fanen **Roller** viser hva hver rolle kan gjøre, hvem som har den, og lar
+     deg tildele (**Tildel rolle**) eller oppheve (**Opphev**) roller.
+
+![Fanen Kontakter for en kladd-installasjon. Markør 1 viser fanen Kontakter, 2 Legg til Equinor-kontakt og 3 Nytt firma.](../images/hurtigguider/admin-kontakter.png)
+
+*Figur 9. Åpne Kontakter (1), legg til Equinor-kontakter (2) og eksterne firma (3).*
+
+8. Kontroller fanen **Tilganger**. Standardtilgangene er allerede på plass og er
+   låst. Legg til installasjonsspesifikke tilganger hvis det trengs, og knytt
+   dem til instrukser.
+9. Aktiver installasjonen. Åpne fanen **Installasjonsdetaljer**, velg
+   **Rediger installasjon**, sett **Status** til **Aktiv** (1) og velg
+   **Lagre** (2). Aktivering krever minst én kontakt (en person med rolle
+   teller) og én aktiv tilgang.
+
+![Dialogen Rediger installasjon. Markør 1 viser Status satt til Aktiv, og markør 2 viser Lagre.](../images/hurtigguider/admin-aktiver.png)
+
+*Figur 10. Sett Status til Aktiv (1) og lagre (2).*
+
+10. Gi beskjed til installatøren, som fortsetter med
+    [1. Installatør](#1-installatør--klargjøre-og-følge-opp-installasjonen) for
+    å sette opp påminnelser og instrukser og begynne ordinær drift.
+
+Flere administratorer legges til ved at miljøadministratoren gir dem rollen
+**EAS Functional Administrator**. Fjernes rollen, mister personen
+administratorrettighetene.
