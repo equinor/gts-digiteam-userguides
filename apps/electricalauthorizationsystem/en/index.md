@@ -41,7 +41,7 @@ yourself, see [6. Administrator - get started](#6-administrator---get-started).
      Admin/Superuser.
    - **Contacts:** Keep Equinor contacts, external companies and contact persons
      up to date. The Installer and Deputy can maintain Equinor contacts. The
-     Installer, Deputy and Delegated person can maintain external companies and
+     Installer, Deputy and Authorized person can maintain external companies and
      contacts.
    - **Roles:** Assign or revoke roles as needed. Set the correct card
      authority, key authority and validity period. External roles must be
@@ -203,8 +203,8 @@ and key information.
 
 ## 5. External user with card and key authority
 
-**Prerequisite:** You have an Equinor account and the **External installer** or
-**External delegated person** role for the correct installation, with card
+**Prerequisite:** You have an Equinor account and the **Installer external** or
+**Authorized external** role for the correct installation, with card
 and/or key authority assigned.
 
 1. Select the installation where you have been assigned the role. Check that
@@ -270,23 +270,30 @@ they hold it. The role does not grant Dataverse administrator rights.
    the site is not in the list, it must first be created as master data;
    contact the platform team. A new installation is always created as a
    **Draft**, and the standard accesses from the default access template are
-   created automatically and are locked.
+   created automatically and are locked. Also select **Role names**:
+   **Onshore** or **Offshore**. The choice is required and decides the names of
+   the roles and of the two labels of the electrically responsible role
+   (Onshore: Local representative and Responsible person electrical facilities,
+   Offshore: Electrical Operation manager and Responsible person electrical
+   facilities). The names can be changed later under **Roles** with **Edit role
+   names**.
 5. Add the people who will hold roles on the installation. Under **Roles and
    contacts**, select **Add role** (3):
    1. Enter at least two characters of the name or email address and select
       **Search**.
    2. Select the person in the **Person** list.
-   3. Select the **Role**: **Installer**, **Responsible person**, **Delegated
-      person** or **Deputy**.
-   4. Fill in **Valid to**. For Installer and Responsible person the field can
-      be empty (unlimited). Delegated person and Deputy must have an end date;
+   3. Select the **Role**: one of the two labels (for example **Local
+      representative** or **Responsible person electrical facilities** onshore),
+      **Authorized person** or **Deputy**.
+   4. Fill in **Valid to**. For the two labels the field can be empty
+      (unlimited). Authorized person and Deputy must have an end date;
       the app proposes one year ahead.
    5. Select **Add**. Repeat for each person and role. The same person can be
-      both Installer and Responsible person; add the person in both roles.
+      have both labels; add the person under both.
 
    The people show as contacts under the role (4). They get card and key
-   authority on the installation. As a minimum, add one Installer or
-   Responsible person, and preferably a Deputy. You can remove a person with
+   authority on the installation. As a minimum, add one person under one of
+   the two labels, and preferably a Deputy. You can remove a person with
    **Remove** before you save.
 
 ![New installation form with roles. Marker 1 shows the Installations menu item, 2 the Shared site field, 3 Add role, 4 the roles that have been added and 5 Save setup.](../images/hurtigguider/admin-ny-installasjon.png)
@@ -304,7 +311,7 @@ they hold it. The role does not grant Dataverse administrator rights.
      validity, and **Remove** to remove a person.
    - **External companies:** Select **New company** (3). In step 1, enter the
      company name. In step 2, add contact people and, if needed, an external
-     role (**External installer** or **External delegated person**). External
+     role (**Installer external** or **Authorized external**). External
      roles are linked to the company and only apply to people in their own
      company. You can also add a contact person without a role, and people who
      are not in the directory can be entered manually.

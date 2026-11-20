@@ -267,22 +267,27 @@ Rollen gir ikke Dataverse-administratorrettigheter.
    lokasjonen i listen, må den først opprettes som masterdata; kontakt
    plattformteamet. En ny installasjon opprettes alltid som **Kladd**, og
    standardtilgangene fra standard tilgangsmal opprettes automatisk og er låst.
+   Velg også **Rollenavn**: **Onshore** eller **Offshore**. Valget er
+   obligatorisk og bestemmer navnene på rollene og på de to etikettene til den
+   som er elektrofaglig ansvarlig (Onshore: Stedlig representant og Elektro
+   ansvarshavende, Offshore: Elektro driftsleder og Ansvarshavende elektro).
+   Navnene kan endres senere under **Roller** med **Rediger rollenavn**.
 5. Legg til personene som skal ha roller på installasjonen. Under **Roller og
    kontakter** velger du **Legg til rolle** (3):
    1. Skriv minst to tegn av navnet eller e-postadressen og velg **Søk**.
    2. Velg personen i listen **Person**.
-   3. Velg **Rolle**: **Installatør**, **Ansvarshavende**, **Bemyndiget** eller
+   3. Velg **Rolle**: de to etikettene (for eksempel **Stedlig representant** og
+      **Elektro ansvarshavende** på Onshore), **Bemyndiget** eller
       **Stedfortreder**.
-   4. Fyll ut **Gyldig til**. For Installatør og Ansvarshavende kan feltet være
+   4. Fyll ut **Gyldig til**. For de to etikettene kan feltet være
       tomt (ubegrenset). Bemyndiget og Stedfortreder må ha en sluttdato; appen
       foreslår ett år frem i tid.
    5. Velg **Legg til**. Gjenta for hver person og rolle. Samme person kan være
-      både Installatør og Ansvarshavende; legg da til personen i begge
-      rollene.
+      ha begge etikettene; legg da til personen under begge.
 
    Personene vises som kontakter under rollen (4). De får kort- og
-   nøkkelmyndighet på installasjonen. Legg som minimum inn én Installatør eller
-   Ansvarshavende, og gjerne en Stedfortreder. Du kan fjerne en person med
+   nøkkelmyndighet på installasjonen. Legg som minimum inn én person under en av
+   de to etikettene, og gjerne en Stedfortreder. Du kan fjerne en person med
    **Fjern** før du lagrer.
 
 ![Skjema for ny installasjon med roller. Markør 1 viser menypunktet Installasjoner, 2 Felles lokasjon, 3 Legg til rolle, 4 rollene som er lagt til og 5 Lagre oppsett.](../images/hurtigguider/admin-ny-installasjon.png)
