@@ -21,6 +21,14 @@ in more than one place within a step. Appearance and available actions may vary
 with your role, the selected installation and the app version. The screenshots
 use Norwegian labels.
 
+Role names are set per installation. The guides use the standard (Onshore)
+names; an offshore installation may, for example, call the electrically
+responsible role **Electrical Operation manager**. The names can be changed, see
+step 4 in
+[1. Installer](#1-installer---prepare-and-follow-up-the-installation).
+Authority always follows the role, never the name. "Installer" is used as the
+general term for the role of the electrically responsible person.
+
 ## Open the app
 
 Test: https://apps.equinor.com/eas20test
@@ -46,7 +54,8 @@ yourself, see [6. Administrator - get started](#6-administrator---get-started).
    - **Roles:** Assign or revoke roles as needed. Set the correct card
      authority, key authority and validity period. External roles must be
      linked to the correct company. Only delegate authority that you are
-     permitted to delegate.
+     permitted to delegate. Role names can be adapted to the installation; see
+     step 4.
    - **Permissions:** Check the default permissions, add any necessary
      installation-specific permissions and maintain their order and associated
      instructions. Changes to the shared permission catalogue should be
@@ -66,11 +75,34 @@ yourself, see [6. Administrator - get started](#6-administrator---get-started).
 
 *Figure 2. Open Instructions in step 3.*
 
-4. Return to **Installations > Reminders**. Set up who should receive email,
+4. Adapt the role names if needed. Open the **Roles** tab and select **Edit
+   role names**. The button is shown to Admin, Installer and Deputy, not to
+   Authorized person.
+   - Select a suggestion, **Onshore** or **Offshore**, to fill in the standard
+     names, or type your own. A name is required in both Norwegian and
+     English, can have at most 80 characters and must be unique on the
+     installation.
+   - Clear **Used on the installation** for a role that is not used. Installer
+     cannot be hidden, and a role with holders cannot be hidden until the
+     holders have been changed.
+   - Select **Add custom role** to create a new role. Choose the role it is
+     **Based on**; it gets the same authority as that role, and the name never
+     adds authority. You can have at most ten custom roles, and a custom role
+     with holders cannot be removed.
+   - Select **Save**. The names are used in role pickers, contact groups,
+     reminders and role-expiry emails. Hidden roles no longer appear on the
+     installation. A person with a custom role gets reminders like the role it
+     is based on.
+
+![The Edit role names dialog for a demo installation, with Norwegian and English names for each role, a checkbox for whether the role is used, and the Add custom role option.](../images/hurtigguider/installasjon-rollenavn.png)
+
+*Figure 3. The Edit role names dialog, opened from the Roles tab.*
+
+5. Return to **Installations > Reminders**. Set up who should receive email,
    how often it should be sent and whether it should cover expired cards,
    cards nearing expiry or keys that have not been returned. No email is sent
    when there is nothing to report.
-5. Check that the roles, contact information, permissions, published
+6. Check that the roles, contact information, permissions, published
    instructions and reminders are correct before starting normal operations.
 
 The Installer and Deputy have the same installation-specific authority in the
@@ -91,7 +123,7 @@ installation does not in itself grant permission.
 
 ![Safety card list for a demo installation. Marker 1 shows the installation selector, and marker 2 shows Safety cards and New safety card.](../images/hurtigguider/sikkerhetskort.png)
 
-*Figure 3. Select the installation (1), then open the page and start the wizard (2).*
+*Figure 4. Select the installation (1), then open the page and start the wizard (2).*
 
 3. Find the person in the Office 365 directory if they have an Equinor account.
    Select **External without Equinor account** for a recipient without an
@@ -126,7 +158,7 @@ reissued with the same card number; its previous history is retained.
 
 ![Keys page for a demo installation. Marker 1 shows Keys, 2 Hand out keys and 3 Hand in keys.](../images/hurtigguider/nokler.png)
 
-*Figure 4. Open Keys (1), then choose hand-out (2) or hand-in (3).*
+*Figure 5. Open Keys (1), then choose hand-out (2) or hand-in (3).*
 
 2. When handing out a key, select an available key and link it to the correct
    active card. You can also register a new key and hand it out in the same
@@ -157,7 +189,7 @@ this does not give you permission to change or sign other people's records.
 
 ![Overview page in the app. Marker 1 shows the installation selector, 2 My actions and 3 Go to signing.](../images/hurtigguider/oversikt.png)
 
-*Figure 5. Select the installation (1), find your tasks (2), and open signing (3).*
+*Figure 6. Select the installation (1), find your tasks (2), and open signing (3).*
 
 4. If you need a renewal, open the card and select **Request renewal**. A person
    with card authority must process the request. A request does not change the
@@ -181,7 +213,7 @@ charge.
 This guide applies to external personnel who have an Equinor account and sign
 in to the app. As an ordinary user, follow the steps in **Ordinary user -
 internal** for your own cards, signatures, renewal requests, instructions and
-profile preferences. The overview in figure 5 also applies to external users;
+profile preferences. The overview in figure 6 also applies to external users;
 the tasks and records you see depend on the installation and your role.
 
 - Being registered as a cardholder or being able to sign in does not
@@ -219,7 +251,7 @@ and/or key authority assigned.
 5. If the recipient's signature is missing, you can send a new signing request
    for a card or key within your authority. The recipient signs for themselves.
 
-The screenshots in figures 3 and 4 show the same card and key pages. The actions
+The screenshots in figures 4 and 5 show the same card and key pages. The actions
 available to you are limited to the installation, company and authority
 assigned to you.
 
@@ -249,7 +281,7 @@ they hold it. The role does not grant Dataverse administrator rights.
 
 ![The app initialization screen. Marker 1 shows the Initialize the app button.](../images/hurtigguider/admin-initialiser.png)
 
-*Figure 6. Select Initialize the app (1).*
+*Figure 7. Select Initialize the app (1).*
 
 2. Open **Administration** (1). **Default access template** holds the accesses
    that new installations start with, and **Color palette** holds the colors
@@ -259,7 +291,7 @@ they hold it. The role does not grant Dataverse administrator rights.
 
 ![Administration with the Default access template tab. Marker 1 shows the Administration menu item, 2 the tabs and 3 the save button.](../images/hurtigguider/admin-administrasjon.png)
 
-*Figure 7. Open Administration (1), choose a tab (2) and save your changes (3).*
+*Figure 8. Open Administration (1), choose a tab (2) and save your changes (3).*
 
 3. Open **Instructions → Global** and add instructions that apply to all
    installations. Publish them once they have been checked. You can then link a
@@ -276,7 +308,7 @@ they hold it. The role does not grant Dataverse administrator rights.
    (Onshore: Local representative and Responsible person electrical facilities,
    Offshore: Electrical Operation manager and Responsible person electrical
    facilities). The names can be changed later under **Roles** with **Edit role
-   names**.
+   names**; see [step 4 in guide 1](#1-installer---prepare-and-follow-up-the-installation).
 5. Add the people who will hold roles on the installation. Under **Roles and
    contacts**, select **Add role** (3):
    1. Enter at least two characters of the name or email address and select
@@ -288,7 +320,7 @@ they hold it. The role does not grant Dataverse administrator rights.
    4. Fill in **Valid to**. For the two labels the field can be empty
       (unlimited). Authorized person and Deputy must have an end date;
       the app proposes one year ahead.
-   5. Select **Add**. Repeat for each person and role. The same person can be
+   5. Select **Add**. Repeat for each person and role. The same person can
       have both labels; add the person under both.
 
    The people show as contacts under the role (4). They get card and key
@@ -298,7 +330,7 @@ they hold it. The role does not grant Dataverse administrator rights.
 
 ![New installation form with roles. Marker 1 shows the Installations menu item, 2 the Shared site field, 3 Add role, 4 the roles that have been added and 5 Save setup.](../images/hurtigguider/admin-ny-installasjon.png)
 
-*Figure 8. Open Installations (1), select the site (2), add roles (3), check them (4) and save (5).*
+*Figure 9. Open Installations (1), select the site (2), add roles (3), check them (4) and save (5).*
 
 6. Select **Save setup** (5). The installation is created as a Draft and the
    roles are assigned. If a role could not be assigned, the app shows who it
@@ -316,11 +348,12 @@ they hold it. The role does not grant Dataverse administrator rights.
      company. You can also add a contact person without a role, and people who
      are not in the directory can be entered manually.
    - The **Roles** tab shows what each role can do and who holds it, and lets
-     you assign (**Assign role**) or revoke (**Revoke**) roles.
+     you assign (**Assign role**) or revoke (**Revoke**) roles. Roles appear
+     with the installation's own names; use **Edit role names** to change them.
 
 ![The Contacts tab for a draft installation. Marker 1 shows the Contacts tab, 2 Add Equinor contact and 3 New company.](../images/hurtigguider/admin-kontakter.png)
 
-*Figure 9. Open Contacts (1), add Equinor contacts (2) and external companies (3).*
+*Figure 10. Open Contacts (1), add Equinor contacts (2) and external companies (3).*
 
 8. Check the **Accesses** tab. The standard accesses are already in place and
    locked. Add installation-specific accesses if needed, and link them to
@@ -332,7 +365,7 @@ they hold it. The role does not grant Dataverse administrator rights.
 
 ![The Edit installation dialog. Marker 1 shows Status set to Active, and marker 2 shows Save.](../images/hurtigguider/admin-aktiver.png)
 
-*Figure 10. Set Status to Active (1) and save (2).*
+*Figure 11. Set Status to Active (1) and save (2).*
 
 10. Tell the installer, who continues with
     [1. Installer](#1-installer---prepare-and-follow-up-the-installation) to

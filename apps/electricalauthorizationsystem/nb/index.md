@@ -20,6 +20,13 @@ opplysninger. Sirkelmarkørene viser til trinnumrene i teksten; samme nummer
 kan markere flere steder i ett trinn. Utseende og tilgjengelige handlinger kan
 variere med rolle, valgt installasjon og appversjon.
 
+Rollenavn settes per installasjon. Guidene bruker standardnavnene (Onshore);
+en offshore-installasjon kan for eksempel kalle den elektrofaglig ansvarlige
+**Elektro driftsleder**. Navnene kan endres, se trinn 4 i
+[1. Installatør](#1-installatør--klargjøre-og-følge-opp-installasjonen).
+Myndigheten følger alltid rollen, aldri navnet. «Installatør» brukes som
+fellesbegrep for rollen til den elektrofaglig ansvarlige.
+
 ## Åpne appen
 
 Test: https://apps.equinor.com/eas20test
@@ -44,7 +51,7 @@ rollen mangler, kontakt Admin/Superbruker. Er du selv administrator, se
    - **Roller:** Tildel eller opphev roller etter behov. Sett riktig
      kortmyndighet, nøkkelmyndighet og gyldighetsperiode. Eksterne roller må
      knyttes til riktig firma. Deleger bare myndighet du selv har anledning til
-     å delegere.
+     å delegere. Rollenavnene kan tilpasses installasjonen, se trinn 4.
    - **Tilganger:** Kontroller standardtilgangene, legg til nødvendige
      installasjonsspesifikke tilganger og hold rekkefølge og tilknyttede
      instrukser oppdatert. Endringer i felles tilgangskatalog skal være
@@ -64,11 +71,33 @@ rollen mangler, kontakt Admin/Superbruker. Er du selv administrator, se
 
 *Figur 2. Åpne Instrukser i trinn 3.*
 
-4. Gå tilbake til **Installasjoner → Påminnelser**. Sett opp hvem som skal få
+4. Tilpass rollenavnene ved behov. Åpne fanen **Roller** og velg **Rediger
+   rollenavn**. Knappen vises for Admin, Installatør og Stedfortreder, ikke for
+   Bemyndiget.
+   - Velg et forslag, **Onshore** eller **Offshore**, for å fylle inn
+     standardnavnene, eller skriv egne navn. Navnet må oppgis på både norsk og
+     engelsk, kan ha høyst 80 tegn og må være unikt på installasjonen.
+   - Fjern avmerkingen **Brukes på installasjonen** for en rolle som ikke
+     brukes. Installatør kan ikke skjules, og en rolle med innehavere kan ikke
+     skjules før innehaverne er byttet.
+   - Velg **Legg til egen rolle** for å opprette en ny rolle. Velg hvilken
+     rolle den er **Basert på**; den får samme myndighet som denne, og navnet gir
+     ingen ekstra myndighet. Du kan ha høyst ti egne roller, og en egen rolle
+     med innehavere kan ikke fjernes.
+   - Velg **Lagre**. Navnene brukes i rollevelgere, kontaktgrupper, påminnelser
+     og e-post om utløpende roller. Skjulte roller vises ikke lenger på
+     installasjonen. En person med egen rolle får påminnelser som rollen den er
+     basert på.
+
+![Dialogen Rediger rollenavn for en demo-installasjon med navn på norsk og engelsk for hver rolle, avmerking for om rollen brukes, og valget Legg til egen rolle.](../images/hurtigguider/installasjon-rollenavn.png)
+
+*Figur 3. Dialogen Rediger rollenavn, åpnet fra fanen Roller.*
+
+5. Gå tilbake til **Installasjoner → Påminnelser**. Sett opp hvem som skal få
    e-post, hvor ofte den skal sendes og om den skal gjelde utløpte kort,
    kort som snart utløper eller nøkler som ikke er levert inn. Ingen e-post
    sendes når det ikke finnes noe å rapportere.
-5. Kontroller at rollene, kontaktinformasjonen, tilganger, publiserte instrukser
+6. Kontroller at rollene, kontaktinformasjonen, tilganger, publiserte instrukser
    og påminnelser er riktige før du begynner ordinær drift.
 
 Installatør og Stedfortreder har samme installasjonsspesifikke myndighet i
@@ -88,7 +117,7 @@ selv en tillatelse.
 
 ![Sikkerhetskortlisten for en demo-installasjon. Markør 1 viser installasjonsvelgeren; markør 2 viser Sikkerhetskort og Nytt sikkerhetskort.](../images/hurtigguider/sikkerhetskort.png)
 
-*Figur 3. Velg installasjonen (1), og åpne siden og start veiviseren (2).*
+*Figur 4. Velg installasjonen (1), og åpne siden og start veiviseren (2).*
 
 3. Finn personen i Office 365-katalogen når vedkommende har Equinor-konto.
    Velg **Ekstern uten Equinor-konto** for en mottaker uten konto. Fyll inn
@@ -123,7 +152,7 @@ kan utstedes på nytt med samme kortnummer; tidligere historikk beholdes.
 
 ![Nøkkelsiden for en demo-installasjon. Markør 1 viser Nøkler, 2 Lever ut nøkler og 3 Lever inn nøkler.](../images/hurtigguider/nokler.png)
 
-*Figur 4. Åpne Nøkler (1), og velg utlevering (2) eller innlevering (3).*
+*Figur 5. Åpne Nøkler (1), og velg utlevering (2) eller innlevering (3).*
 
 2. Ved utlevering velger du en tilgjengelig nøkkel og knytter den til riktig
    aktivt kort. Du kan også registrere en ny nøkkel og levere den ut i samme
@@ -154,7 +183,7 @@ det gir ikke rett til å endre eller signere andres poster.
 
 ![Oversiktssiden i appen. Markør 1 viser installasjonsvelgeren, 2 Mine aksjoner og 3 Gå til signering.](../images/hurtigguider/oversikt.png)
 
-*Figur 5. Velg installasjon (1), finn oppgavene dine (2), og åpne signeringen (3).*
+*Figur 6. Velg installasjon (1), finn oppgavene dine (2), og åpne signeringen (3).*
 
 4. Trenger du fornyelse, åpne kortet og velg **Be om fornyelse**. En person med
    kortmyndighet må behandle forespørselen. En forespørsel endrer ikke
@@ -178,7 +207,7 @@ ansvarshavende.
 Denne veiledningen gjelder eksterne personer som har Equinor-konto og logger
 inn i appen. Som vanlig bruker følger du trinnene i **Vanlig bruker – intern**
 for egne kort, signaturer, fornyelsesforespørsler, instrukser og profilvalg.
-Oversiktsbildet i figur 5 gjelder også for eksterne brukere; hvilke oppgaver og
+Oversiktsbildet i figur 6 gjelder også for eksterne brukere; hvilke oppgaver og
 poster du ser, avhenger av installasjonen og rollen din.
 
 - Du får ikke automatisk kort- eller nøkkelmyndighet av å være registrert som
@@ -217,7 +246,7 @@ nøkkelmyndighet tildelt.
    for kort eller nøkkel som ligger innenfor din myndighet. Mottakeren signerer
    selv.
 
-Skjermbildene i figur 3 og 4 viser de samme kort- og nøkkelsidene. Hvilke
+Skjermbildene i figur 4 og 5 viser de samme kort- og nøkkelsidene. Hvilke
 handlinger du kan utføre, avgrenses til installasjonen, firmaet og myndigheten
 du er tildelt.
 
@@ -246,7 +275,7 @@ Rollen gir ikke Dataverse-administratorrettigheter.
 
 ![Skjermen for å initialisere appen. Markør 1 viser knappen Initialiser appen.](../images/hurtigguider/admin-initialiser.png)
 
-*Figur 6. Velg Initialiser appen (1).*
+*Figur 7. Velg Initialiser appen (1).*
 
 2. Åpne **Administrasjon** (1). Under **Standard tilgangsmal** ligger
    tilgangene nye installasjoner starter med, og under **Fargepalett** ligger
@@ -256,7 +285,7 @@ Rollen gir ikke Dataverse-administratorrettigheter.
 
 ![Administrasjon med fanen Standard tilgangsmal. Markør 1 viser menypunktet Administrasjon, 2 viser fanene og 3 viser Lagre standardoppsett.](../images/hurtigguider/admin-administrasjon.png)
 
-*Figur 7. Åpne Administrasjon (1), velg fane (2) og lagre endringer (3).*
+*Figur 8. Åpne Administrasjon (1), velg fane (2) og lagre endringer (3).*
 
 3. Åpne **Instrukser → Globale** og legg til instrukser som skal gjelde for alle
    installasjoner. Publiser dem når de er kontrollert. Du kan deretter knytte en
@@ -271,7 +300,8 @@ Rollen gir ikke Dataverse-administratorrettigheter.
    obligatorisk og bestemmer navnene på rollene og på de to etikettene til den
    som er elektrofaglig ansvarlig (Onshore: Stedlig representant og Elektro
    ansvarshavende, Offshore: Elektro driftsleder og Ansvarshavende elektro).
-   Navnene kan endres senere under **Roller** med **Rediger rollenavn**.
+   Navnene kan endres senere under **Roller** med **Rediger rollenavn**, se
+   [trinn 4 i guide 1](#1-installatør--klargjøre-og-følge-opp-installasjonen).
 5. Legg til personene som skal ha roller på installasjonen. Under **Roller og
    kontakter** velger du **Legg til rolle** (3):
    1. Skriv minst to tegn av navnet eller e-postadressen og velg **Søk**.
@@ -282,8 +312,8 @@ Rollen gir ikke Dataverse-administratorrettigheter.
    4. Fyll ut **Gyldig til**. For de to etikettene kan feltet være
       tomt (ubegrenset). Bemyndiget og Stedfortreder må ha en sluttdato; appen
       foreslår ett år frem i tid.
-   5. Velg **Legg til**. Gjenta for hver person og rolle. Samme person kan være
-      ha begge etikettene; legg da til personen under begge.
+   5. Velg **Legg til**. Gjenta for hver person og rolle. Samme person kan ha
+      begge etikettene; legg da til personen under begge.
 
    Personene vises som kontakter under rollen (4). De får kort- og
    nøkkelmyndighet på installasjonen. Legg som minimum inn én person under en av
@@ -292,7 +322,7 @@ Rollen gir ikke Dataverse-administratorrettigheter.
 
 ![Skjema for ny installasjon med roller. Markør 1 viser menypunktet Installasjoner, 2 Felles lokasjon, 3 Legg til rolle, 4 rollene som er lagt til og 5 Lagre oppsett.](../images/hurtigguider/admin-ny-installasjon.png)
 
-*Figur 8. Åpne Installasjoner (1), velg lokasjon (2), legg til roller (3), kontroller dem (4) og lagre (5).*
+*Figur 9. Åpne Installasjoner (1), velg lokasjon (2), legg til roller (3), kontroller dem (4) og lagre (5).*
 
 6. Velg **Lagre oppsett** (5). Installasjonen opprettes som Kladd og rollene
    tildeles. Hvis en rolle ikke kunne tildeles, viser appen hvem det gjelder;
@@ -309,11 +339,13 @@ Rollen gir ikke Dataverse-administratorrettigheter.
      inn en kontaktperson uten rolle, og personer som ikke finnes i katalogen kan
      legges inn manuelt.
    - Fanen **Roller** viser hva hver rolle kan gjøre, hvem som har den, og lar
-     deg tildele (**Tildel rolle**) eller oppheve (**Opphev**) roller.
+     deg tildele (**Tildel rolle**) eller oppheve (**Opphev**) roller. Rollene
+     vises med installasjonens egne navn; bruk **Rediger rollenavn** for å endre
+     dem.
 
 ![Fanen Kontakter for en kladd-installasjon. Markør 1 viser fanen Kontakter, 2 Legg til Equinor-kontakt og 3 Nytt firma.](../images/hurtigguider/admin-kontakter.png)
 
-*Figur 9. Åpne Kontakter (1), legg til Equinor-kontakter (2) og eksterne firma (3).*
+*Figur 10. Åpne Kontakter (1), legg til Equinor-kontakter (2) og eksterne firma (3).*
 
 8. Kontroller fanen **Tilganger**. Standardtilgangene er allerede på plass og er
    låst. Legg til installasjonsspesifikke tilganger hvis det trengs, og knytt
@@ -325,7 +357,7 @@ Rollen gir ikke Dataverse-administratorrettigheter.
 
 ![Dialogen Rediger installasjon. Markør 1 viser Status satt til Aktiv, og markør 2 viser Lagre.](../images/hurtigguider/admin-aktiver.png)
 
-*Figur 10. Sett Status til Aktiv (1) og lagre (2).*
+*Figur 11. Sett Status til Aktiv (1) og lagre (2).*
 
 10. Gi beskjed til installatøren, som fortsetter med
     [1. Installatør](#1-installatør--klargjøre-og-følge-opp-installasjonen) for
